@@ -1,11 +1,6 @@
 {
   "version": "0.0.1",
   "configurations": [
-    {
-      "name": "domissi",
-      "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "5510"],
-      "port": 5510
-    }
+    { "name": "web", "runtimeExecutable": "python", "runtimeArgs": ["-m", "http.server", "5178"], "port": 5178 }
   ]
 }

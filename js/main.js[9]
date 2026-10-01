@@ -1,0 +1,33 @@
+const toggle = document.getElementById('navToggle');
+const nav = document.getElementById('primaryNav');
+if (toggle && nav) {
+  toggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open);
+    toggle.textContent = open ? '✕' : '☰';
+  });
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    nav.classList.remove('open');
+    toggle.setAttribute('aria-expanded', false);
+    toggle.textContent = '☰';
+  }));
+}
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+const quickForm = document.getElementById('quickQuoteForm');
+if (quickForm) {
+  quickForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nombre = quickForm.nombre.value.trim();
+    const empresa = quickForm.empresa.value.trim();
+    const mensaje = quickForm.mensaje.value.trim();
+    if (!nombre || !mensaje) return;
+    const partes = [`Hola, soy ${nombre}${empresa ? ' de ' + empresa : ''}.`, mensaje];
+    const texto = encodeURIComponent(partes.join(' '));
+    window.open(`https://wa.me/543413574947?text=${texto}`, '_blank', 'noopener');
+  });
+}
