@@ -28,6 +28,12 @@
     target.focus({ preventScroll: true });
   });
 
+  /* Paneles con scroll propio: Lenis detenido bloquea la rueda (preventDefault),
+     así que se marcan para que el desplazamiento nativo siga funcionando dentro. */
+  document.querySelectorAll(".mobile-nav, .search-overlay, dialog").forEach(function (el) {
+    el.setAttribute("data-lenis-prevent", "");
+  });
+
   /* Menú móvil, buscador y diálogos abiertos: frenar el scroll de fondo */
   var lock = new MutationObserver(function () {
     var open = document.querySelector(".mobile-nav.is-open, .search-overlay.is-open, dialog[open]");

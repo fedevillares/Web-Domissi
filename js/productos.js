@@ -1,6 +1,9 @@
 /* Domissi Hermanos — catálogo de productos.
    Vista general (sin parámetros) o vista de categoría: ?c=<cat>&s=<sub>&g=<grupo>&q=<texto>
-   Datos: DOMISSI_CATALOG (categorías) + DOMISSI_PRODUCTS (filas). Fotos opcionales: DOMISSI_PHOTOS. */
+   Datos: DOMISSI_CATALOG (categorías) + DOMISSI_PRODUCTS (filas). Fotos opcionales: DOMISSI_PHOTOS.
+   Filtros de medida: filas con ancho (r[8]) y/o espesor (r[9]) en mm. Cada filtro solo aparece si el
+   alcance actual (categoría / subcategoría / tipo) tiene datos para él; sin datos no se muestra ni su nombre.
+   Parámetros: &a=<ancho mm>&e=<espesor mm>. */
 (function () {
   "use strict";
   var root = document.getElementById("catalogRoot");
@@ -8,6 +11,7 @@
   var groupNames = window.DOMISSI_GROUPS || [];
   var rows = window.DOMISSI_PRODUCTS || [];
   var photos = window.DOMISSI_PHOTOS || {};
+  var related = window.DOMISSI_RELATED || [];
   if (!root || !cats.length) return;
 
   var PAGE = 60;
@@ -93,7 +97,8 @@
           return '<button type="button" data-g="' + g.id + '"' + (grp && grp.id === g.id ? ' class="is-active"' : "") + ">" + esc(g.label) + " (" + g.count + ")</button>";
         }).join("") + "</div>";
     }
-    html += '<p class="catalog__count" id="catCount" aria-live="polite"></p><div id="catTable"></div><div class="catalog__more" id="catMore"></div></div></div></section>';
+    html += '<div class="measure" id="catMeasure" role="group" aria-label="Filtrar por medida" hidden></div>';
+    html += '<p class="catalog__count" id="catCount" aria-live="polite"></p><div id="catTable"></div><div class="catalog__more" id="catMore"></div><div id="catRelated"></div></div></div></section>';
     root.innerHTML = html;
 
     var find = document.getElementById("catFind");
@@ -101,13 +106,69 @@
     var count = document.getElementById("catCount");
     var more = document.getElementById("catMore");
     var shown = PAGE;
+    var measureBox = document.getElementById("catMeasure");
     var curGrp = grp;
+    /* Filtros de medida: key → { label, idx (posición en la fila), val (mm elegido o null) } */
+    var measures = [
+      { key: "a", label: "Ancho", idx: 8, val: numParam("a"), sel: null },
+      { key: "e", label: "Espesor", idx: 9, val: numParam("e"), sel: null }
+    ];
+
+    function numParam(k) { var v = parseFloat(params.get(k)); return isFinite(v) ? v : null; }
+
+    function inScope(r) {
+      if (si >= 0 && r[3] !== si) return false;
+      if (curGrp && r[4] !== byId(sub.groups, curGrp.id)) return false;
+      return true;
+    }
+    function passMeasures(r, skip) {
+      for (var i = 0; i < measures.length; i++) {
+        var m = measures[i];
+        if (m !== skip && m.val != null && r[m.idx] !== m.val) return false;
+      }
+      return true;
+    }
+    function hasMeasure(m) { return base.some(function (r) { return inScope(r) && r[m.idx] != null; }); }
+
+    /* Valores disponibles para m, respetando el otro filtro de medida ya elegido */
+    function valuesFor(m) {
+      var seen = {}, out = [];
+      base.forEach(function (r) {
+        var v = r[m.idx];
+        if (v == null || !inScope(r) || !passMeasures(r, m) || seen[v]) return;
+        seen[v] = 1; out.push(v);
+      });
+      return out.sort(function (x, y) { return x - y; });
+    }
+
+    function fillSelect(m) {
+      var vals = valuesFor(m);
+      if (m.val != null && vals.indexOf(m.val) === -1) m.val = null;
+      m.sel.innerHTML = '<option value="">Todos</option>' + vals.map(function (v) {
+        return '<option value="' + v + '"' + (v === m.val ? " selected" : "") + ">" + fmt(v) + " mm</option>";
+      }).join("");
+    }
+
+    function buildMeasures() {
+      var active = measures.filter(hasMeasure);
+      measures.forEach(function (m) { if (active.indexOf(m) === -1) { m.val = null; m.sel = null; } });
+      if (!active.length) { measureBox.hidden = true; measureBox.innerHTML = ""; return; }
+      measureBox.hidden = false;
+      measureBox.innerHTML = active.map(function (m) {
+        return '<label class="measure__field"><span>' + m.label + '</span><select data-measure="' + m.key + '"></select></label>';
+      }).join("") + '<button type="button" class="measure__clear" id="measureClear" hidden>Limpiar medidas</button>';
+      active.forEach(function (m) { m.sel = measureBox.querySelector('[data-measure="' + m.key + '"]'); fillSelect(m); });
+      syncClear();
+    }
+    function syncClear() {
+      var b = document.getElementById("measureClear");
+      if (b) b.hidden = !measures.some(function (m) { return m.val != null; });
+    }
 
     function filtered() {
       var q = norm(query).trim().split(/\s+/).filter(Boolean);
       return base.filter(function (r) {
-        if (si >= 0 && r[3] !== si) return false;
-        if (curGrp && r[4] !== byId(sub.groups, curGrp.id)) return false;
+        if (!inScope(r) || !passMeasures(r)) return false;
         if (!q.length) return true;
         var d = norm(r[1]) + " " + r[0];
         return q.every(function (t) { return d.indexOf(t) !== -1; });
@@ -130,15 +191,51 @@
         return;
       }
       count.textContent = list.length + (list.length === 1 ? " producto" : " productos");
-      table.innerHTML = '<div class="ptable-wrap"><table class="ptable"><thead><tr><th>Cód.</th><th>Descripción</th><th class="num col-largo">Largo</th><th class="num col-kg">Kg/un.</th><th class="col-venta">Se vende por</th><th></th></tr></thead><tbody>' +
+      var showA = measures[0].sel && list.some(function (r) { return r[8] != null; });
+      var showE = measures[1].sel && list.some(function (r) { return r[9] != null; });
+      table.innerHTML = '<div class="ptable-wrap"><table class="ptable"><thead><tr><th>Cód.</th><th>Descripción</th>' +
+        (showA ? '<th class="num col-medida">Ancho</th>' : "") + (showE ? '<th class="num col-medida">Espesor</th>' : "") +
+        '<th class="num col-largo">Largo</th><th class="num col-kg">Kg/un.</th><th class="col-venta">Se vende por</th><th></th></tr></thead><tbody>' +
         page.map(function (r) {
           var ph = photos[r[0]];
-          return '<tr><td class="code">' + r[0] + '</td><td class="desc">' + esc(r[1]) + '</td><td class="num col-largo">' + (r[6] != null ? fmt(r[6]) + " m" : "—") +
+          return '<tr><td class="code">' + r[0] + '</td><td class="desc">' + esc(r[1]) + '</td>' +
+            (showA ? '<td class="num col-medida">' + (r[8] != null ? fmt(r[8]) + " mm" : "—") + "</td>" : "") +
+            (showE ? '<td class="num col-medida">' + (r[9] != null ? fmt(r[9]) + " mm" : "—") + "</td>" : "") +
+            '<td class="num col-largo">' + (r[6] != null ? fmt(r[6]) + " m" : "—") +
             '</td><td class="num col-kg">' + (r[7] != null ? fmt(r[7]) : "—") + '</td><td class="col-venta">' + esc(r[5] || "—") +
-            '</td><td class="act">' + (ph ? '<button type="button" data-photo="' + r[0] + '" aria-label="Ver foto de ' + esc(r[1]) + '">' + ic.cam + "Foto</button>" : "") +
-            '<a href="' + waLink(r) + '" target="_blank" rel="noopener" aria-label="Consultar ' + esc(r[1]) + ' por WhatsApp">' + ic.wa + "Consultar</a></td></tr>";
+            '</td><td class="act">' + (ph ? '<button type="button" data-photo="' + r[0] + '" aria-label="Ver foto de ' + esc(r[1]) + '">' + ic.cam + '<span class="act__txt">Foto</span></button>' : "") +
+            '<a href="' + waLink(r) + '" target="_blank" rel="noopener" aria-label="Consultar ' + esc(r[1]) + ' por WhatsApp">' + ic.wa + '<span class="act__txt">Consultar</span></a></td></tr>';
         }).join("") + "</tbody></table></div>";
       more.innerHTML = list.length > shown ? '<button type="button" class="btn btn-secondary" id="moreBtn">Mostrar más (' + (list.length - shown) + ")</button>" : "";
+    }
+
+    /* Categorías sugeridas (tabla de relaciones): según categoría / subcategoría / tipo que se está mirando */
+    function drawRelated() {
+      var box = document.getElementById("catRelated");
+      var seen = {}, out = [];
+      related.forEach(function (rule) {
+        var f = rule.f;
+        if (f[0] !== cat.id) return;
+        if (f[1] && (!sub || f[1] !== sub.id)) return;
+        if (f[2] && (!curGrp || f[2] !== curGrp.id)) return;
+        rule.t.forEach(function (t) {
+          var k = t.join("|");
+          if (seen[k]) return;
+          seen[k] = 1; out.push(t);
+        });
+      });
+      var cards = out.map(function (t) {
+        var tc = cats[byId(cats, t[0])], ts = t[1] ? tc.sub[byId(tc.sub, t[1])] : null;
+        var tg = ts && t[2] ? ts.groups[byId(ts.groups, t[2])] : null;
+        var n = tg ? tg.count : ts ? ts.count : tc.count;
+        var name = tg ? tg.label : ts ? ts.label : tc.label;
+        var ctx = ts ? tc.label + (tg && tg.label !== ts.label ? " · " + ts.label : "") : "";
+        if (!ctx) ctx = tc.group != null ? groupNames[tc.group] || "" : "";
+        return '<a class="related__card" href="' + url(tc, ts, tg) + '"><span class="related__ctx">' + esc(ctx) + '</span>' +
+          '<strong>' + esc(name) + '</strong><span class="related__n">' + n + (n === 1 ? " producto" : " productos") + ' →</span></a>';
+      });
+      box.innerHTML = cards.length ? '<section class="related" aria-labelledby="relTitle"><h2 id="relTitle">Categorías sugeridas</h2>' +
+        '<p class="related__lede">Lo que suele llevarse junto con esto.</p><div class="related__grid">' + cards.join("") + "</div></section>" : "";
     }
 
     function sync() {
@@ -146,6 +243,7 @@
       p.set("c", cat.id);
       if (sub) p.set("s", sub.id);
       if (curGrp) p.set("g", curGrp.id);
+      measures.forEach(function (m) { if (m.val != null) p.set(m.key, m.val); });
       if (query) p.set("q", query);
       history.replaceState(null, "", "?" + p.toString());
     }
@@ -156,12 +254,28 @@
       if (chip) {
         curGrp = chip.dataset.g ? sub.groups[byId(sub.groups, chip.dataset.g)] : null;
         Array.prototype.forEach.call(root.querySelectorAll(".chips button"), function (b) { b.classList.toggle("is-active", b === chip); });
+        buildMeasures(); drawRelated();
         shown = PAGE; sync(); draw(); return;
+      }
+      if (e.target.closest("#measureClear")) {
+        measures.forEach(function (m) { m.val = null; });
+        measures.forEach(function (m) { if (m.sel) fillSelect(m); });
+        syncClear(); shown = PAGE; sync(); draw(); return;
       }
       if (e.target.closest("#moreBtn")) { shown += PAGE; draw(); return; }
       var ph = e.target.closest("[data-photo]");
       if (ph) openPhoto(ph.dataset.photo);
     });
+    measureBox.addEventListener("change", function (e) {
+      var key = e.target.getAttribute("data-measure");
+      var m = measures.filter(function (x) { return x.key === key; })[0];
+      if (!m) return;
+      m.val = e.target.value ? parseFloat(e.target.value) : null;
+      measures.forEach(function (o) { if (o !== m && o.sel) fillSelect(o); });
+      syncClear(); shown = PAGE; sync(); draw();
+    });
+    buildMeasures();
+    drawRelated();
     draw();
   }
 

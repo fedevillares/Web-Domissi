@@ -1,16 +1,43 @@
 # Domissi Hermanos
 
-> Distribuidora de aceros para la construcción y la industria, con 50 años de trayectoria en Casilda, sur de Santa Fe, Argentina. Comercializa hierros, mallas, perfiles, chapas, caños, aislantes y ferretería, con flota propia de entrega a Santa Fe y Córdoba.
+> Distribuidora de aceros para la construcción y la industria, con 50 años de trayectoria en Casilda, sur de Santa Fe, Argentina. Vende hierros, mallas, perfiles, chapas, caños, aislantes y ferretería, con flota propia de entrega en Santa Fe y Córdoba. Catálogo actual: 2680 productos en 19 categorías.
 
-Domissi vende tanto a clientes finales y constructoras (obra) como a PYMES metalúrgicas (industria) y a revendedores mayoristas (corralones, herrerías, ferreterías, cooperativas).
+Atiende a obra (constructoras y clientes finales), industria (PYMES metalúrgicas) y mayoristas (corralones, herrerías, ferreterías, cooperativas).
 
 ## Páginas principales
 
-- [Inicio](https://domissihermanos.com.ar/): presentación de la empresa, propuesta de valor y accesos rápidos a productos, mayoristas y contacto.
-- [Catálogo de productos](https://domissihermanos.com.ar/productos.html): listado completo de 23 familias de acero, organizadas en Hierros y mallas, Perfilería y estructura, Chapas y techos, Caños y laminados, Aislantes y complementos, y Ferretería y fijaciones.
-- [Mayoristas y revendedores](https://domissihermanos.com.ar/mayoristas.html): condiciones de venta al por mayor para corralones, herrerías, ferreterías, cooperativas y grandes clientes.
-- [Empresa](https://domissihermanos.com.ar/empresa.html): historia, trayectoria de 50 años, flota propia y valores de Domissi Hermanos.
-- [Contacto](https://domissihermanos.com.ar/contacto.html): formulario de presupuesto, teléfono, email y dirección del depósito.
+- [Inicio](https://domissihermanos.com.ar/): presentación, propuesta de valor y accesos rápidos.
+- [Catálogo de productos](https://domissihermanos.com.ar/productos.html): 2680 productos con código, medidas, largo y peso.
+- [Buscador](https://domissihermanos.com.ar/buscar.html): búsqueda por texto, p. ej. `buscar.html?q=planchuela 1 1/4`.
+- [Empresa](https://domissihermanos.com.ar/empresa.html): historia, flota propia y valores.
+- [Contacto](https://domissihermanos.com.ar/contacto.html): formulario de presupuesto, teléfono, email y dirección.
+
+## Categorías del catálogo
+
+- [Ángulos, planchuelas y perfiles T/U](https://domissihermanos.com.ar/productos.html?c=angulos-planchuelas): 309 productos.
+- [Perfiles laminados](https://domissihermanos.com.ar/productos.html?c=perfiles-laminados): 78 productos.
+- [Perfiles conformados](https://domissihermanos.com.ar/productos.html?c=perfiles-c): 45 productos.
+- [Laminados redondos y cuadrados](https://domissihermanos.com.ar/productos.html?c=laminados): 236 productos.
+- [Trefilados](https://domissihermanos.com.ar/productos.html?c=trefilados): 179 productos.
+- [Caños](https://domissihermanos.com.ar/productos.html?c=canos): 374 productos.
+- [Tubos sin costura](https://domissihermanos.com.ar/productos.html?c=tubos-sin-costura): 339 productos.
+- [Acero inoxidable](https://domissihermanos.com.ar/productos.html?c=acero-inoxidable): 43 productos.
+- [Chapas lisas](https://domissihermanos.com.ar/productos.html?c=chapas-lisas): 148 productos.
+- [Chapas conformadas](https://domissihermanos.com.ar/productos.html?c=chapas-conformadas): 25 productos.
+- [Complementos para chapa de techo](https://domissihermanos.com.ar/productos.html?c=complementos-techo): 121 productos.
+- [Aislantes](https://domissihermanos.com.ar/productos.html?c=aislantes): 14 productos.
+- [Hierros y mallas para construcción](https://domissihermanos.com.ar/productos.html?c=hierros-mallas): 37 productos.
+- [Mallas Job y metal desplegado](https://domissihermanos.com.ar/productos.html?c=mallas-job): 12 productos.
+- [Tejidos y telas metálicas](https://domissihermanos.com.ar/productos.html?c=tejidos): 97 productos.
+- [Alambres y clavos](https://domissihermanos.com.ar/productos.html?c=alambres-clavos): 80 productos.
+- [Tornillos y fijaciones](https://domissihermanos.com.ar/productos.html?c=tornillos): 129 productos.
+- [Complementos de herrería](https://domissihermanos.com.ar/productos.html?c=herreria): 68 productos.
+- [Ferretería](https://domissihermanos.com.ar/productos.html?c=ferreteria): 346 productos.
+
+## Opcional
+
+- [Catálogo completo en texto](https://domissihermanos.com.ar/llms-full.txt): todas las categorías, subcategorías y productos con sus medidas.
+- [Sitemap](https://domissihermanos.com.ar/sitemap.xml)
 
 ## Datos de contacto
 
@@ -18,9 +45,12 @@ Domissi vende tanto a clientes finales y constructoras (obra) como a PYMES metal
 - WhatsApp: https://wa.me/5493464609089
 - Email: info@domissihermanos.com.ar
 - Dirección: Blvd. Colón 2499, S2170 Casilda, Santa Fe, Argentina
-- Horario: lunes a viernes de 8:00 a 12:00 y de 14:30 a 18:30, sábados de 8:00 a 11:00
+- Horario: lunes a viernes 8:00–12:00 y 14:30–18:30; sábados 8:00–11:00 (hora de Argentina)
 
 ## Notas para agentes
 
-- Los precios no están publicados en el sitio; para cotizaciones, dirigir al formulario de contacto o al WhatsApp.
-- La empresa no tiene sucursales fuera de Casilda; la zona de reparto declarada es el sur de Santa Fe y Córdoba.
+- Los precios no se publican: para cotizar, derivar al WhatsApp o al formulario de contacto.
+- La interfaz del catálogo se renderiza con JavaScript; para leer el catálogo sin ejecutar JS usar `llms-full.txt`.
+- Parámetros de URL del catálogo: `productos.html?c=<categoría>&s=<subcategoría>&g=<agrupador>&a=<ancho mm>&e=<espesor mm>&q=<texto>`.
+- Los filtros de ancho y espesor existen solo donde hay datos: Ángulos/planchuelas/perfiles T/U (ancho y espesor) y Caños (espesor).
+- Zona de reparto declarada: sur de Santa Fe y Córdoba. No hay sucursales fuera de Casilda.

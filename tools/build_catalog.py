@@ -8,7 +8,9 @@ Reglas:
   - Solo productos con activo = VERDADERO. Los inactivos no se publican en ningún lado.
   - Se descartan filas sin descripción o sin filtro1 (filas vacías del Excel).
   - filtro1 -> categoría (menú), filtro2 -> subcategoría, filtro3 -> agrupador (chips).
-  - filtro4 no se usa (en el Excel tiene espesores / fechas mal convertidas).
+  - filtro3 / filtro4 además alimentan los filtros numéricos Ancho / Espesor (mm), solo en las
+    categorías de FILTROS_MEDIDA. Si una categoría no tiene datos, el filtro no se muestra.
+  - Categorías de EXCLUIDAS (ej. Aluminios) no se publican.
   - Largo / peso que Excel convirtió en fecha se muestran vacíos (no se inventa el dato).
 """
 import datetime, json, os, re, sys, unicodedata
@@ -21,28 +23,36 @@ SRC = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "tools", "product
 GROUPS = ["Aceros y perfiles", "Chapas y cubiertas", "Construcción y cerramientos", "Ferretería y complementos"]
 CATS = [
     # filtro1 en el Excel,            grupo, slug,                 nombre,                                    portada
-    ("ANG/PLAN/T/U",                    0, "angulos-planchuelas",  "Ángulos, planchuelas y perfiles T/U",     "barr.png"),
-    ("Perfiles Laminados",              0, "perfiles-laminados",   "Perfiles laminados",                      "aceros-p-la-construccion.png"),
-    ("Perfiles Conformados",            0, "perfiles-c",           "Perfiles conformados",                    "perdiles-c.png"),
-    ("Laminados Red. Y Cuad.",          0, "laminados",            "Laminados redondos y cuadrados",          "barr.png"),
-    ("Trefilados",                      0, "trefilados",           "Trefilados",                              "barr.png"),
-    ("Caños",                           0, "canos",                "Caños",                                   "canos.png"),
-    ("Tubos S/C",                       0, "tubos-sin-costura",    "Tubos sin costura",                       "angulos.png"),
-    ("Acero Inoxidable",                0, "acero-inoxidable",     "Acero inoxidable",                        "Aceros.png"),
-    ("Aluminios",                       0, "aluminios",            "Aluminios",                               "Aceros.png"),
-    ("Chapas Lisas",                    1, "chapas-lisas",         "Chapas lisas",                            "chapas-lisas.png"),
-    ("Chapas Conformadas",              1, "chapas-conformadas",   "Chapas conformadas",                      "chapas-techos.png"),
-    ("Complementos p/Ch. de Techo",     1, "complementos-techo",   "Complementos para chapa de techo",        "chapas-techos.png"),
-    ("Aislantes",                       1, "aislantes",            "Aislantes",                               "aislantes.png"),
-    ("Hierros y Mallas Construccion",   2, "hierros-mallas",       "Hierros y mallas para construcción",      "hierros-y-mallas.png"),
-    ("Mallas Job y Metal Desplegado",   2, "mallas-job",           "Mallas Job y metal desplegado",           "tejidos.png"),
-    ("Tejidos y Telas Metalicas",       2, "tejidos",              "Tejidos y telas metálicas",               "tejidos.png"),
-    ("Alambres y Clavos",               2, "alambres-clavos",      "Alambres y clavos",                       "clavos-y-alambres.png"),
-    ("Tornillos y Fijaciones",          3, "tornillos",            "Tornillos y fijaciones",                  "tornillos.png"),
-    ("Complementos Herreria",           3, "herreria",             "Complementos de herrería",                "tornillos.png"),
-    ("Ferreteria",                      3, "ferreteria",           "Ferretería",                              "aceros-p-la-construccion.png"),
+    ("ANG/PLAN/T/U",                    0, "angulos-planchuelas",  "Ángulos, planchuelas y perfiles T/U",     "angulos-planchuelas.jpg"),
+    ("Perfiles Laminados",              0, "perfiles-laminados",   "Perfiles laminados",                      "perfiles-laminados.jpg"),
+    ("Perfiles Conformados",            0, "perfiles-c",           "Perfiles conformados",                    "perfiles-c.jpg"),
+    ("Laminados Red. Y Cuad.",          0, "laminados",            "Laminados redondos y cuadrados",          "laminados.jpg"),
+    ("Trefilados",                      0, "trefilados",           "Trefilados",                              "trefilados.jpg"),
+    ("Caños",                           0, "canos",                "Caños",                                   "canos.jpg"),
+    ("Tubos S/C",                       0, "tubos-sin-costura",    "Tubos sin costura",                       "tubos-sin-costura.jpg"),
+    ("Acero Inoxidable",                0, "acero-inoxidable",     "Acero inoxidable",                        "acero-inoxidable.jpg"),
+    ("Chapas Lisas",                    1, "chapas-lisas",         "Chapas lisas",                            "chapas-lisas.jpg"),
+    ("Chapas Conformadas",              1, "chapas-conformadas",   "Chapas conformadas",                      "chapas-conformadas.jpg"),
+    ("Complementos p/Ch. de Techo",     1, "complementos-techo",   "Complementos para chapa de techo",        "complementos-techo.jpg"),
+    ("Aislantes",                       1, "aislantes",            "Aislantes",                               "aislantes.jpg"),
+    ("Hierros y Mallas Construccion",   2, "hierros-mallas",       "Hierros y mallas para construcción",      "hierros-mallas.jpg"),
+    ("Mallas Job y Metal Desplegado",   2, "mallas-job",           "Mallas Job y metal desplegado",           "mallas-job.jpg"),
+    ("Tejidos y Telas Metalicas",       2, "tejidos",              "Tejidos y telas metálicas",               "tejidos.jpg"),
+    ("Alambres y Clavos",               2, "alambres-clavos",      "Alambres y clavos",                       "alambres-clavos.jpg"),
+    ("Tornillos y Fijaciones",          3, "tornillos",            "Tornillos y fijaciones",                  "tornillos.jpg"),
+    ("Complementos Herreria",           3, "herreria",             "Complementos de herrería",                "herreria.jpg"),
+    ("Ferreteria",                      3, "ferreteria",           "Ferretería",                              "ferreteria.jpg"),
 ]
-COVER_DIR = "assets/productos/"
+COVER_DIR = "assets/categorias/"
+
+# Categorías del Excel que no se publican en el sitio.
+EXCLUIDAS = {"Aluminios"}
+
+# Filtros por medida (según planilla): filtro1 -> (usa filtro3 como Ancho, usa filtro4 como Espesor)
+FILTROS_MEDIDA = {"ANG/PLAN/T/U": (True, True), "Caños": (False, True)}
+# Excel convirtió medidas como "12.7" en la fecha 12-jul. Se recupera día.mes; estos casos
+# se corrigen a la medida real en pulgadas fraccionarias (19.05 = 3/4", 22.22 = 7/8", etc.).
+MEDIDA_FIX = {19.5: 19.05, 22.2: 22.22, 31.7: 31.75, 15.8: 15.88}
 
 WORDS = {
     "Angulos": "Ángulos", "Conduccion": "Conducción", "Mecanico": "Mecánico", "Metricas": "Métricas",
@@ -105,6 +115,20 @@ def num(v):
     return n if n > 0 else None
 
 
+def medida(v):
+    """Medida en mm (float) desde número, texto numérico o fecha mal convertida; None si no hay dato."""
+    if isinstance(v, datetime.datetime):
+        n = float("%d.%d" % (v.day, v.month))
+        return MEDIDA_FIX.get(n, n)
+    if v is None or v == "-":
+        return None
+    try:
+        n = float(str(v).replace(",", "."))
+    except ValueError:
+        return None
+    return n if n > 0 else None
+
+
 wb = openpyxl.load_workbook(SRC, data_only=True)
 ws = wb.active
 head = [c.value for c in ws[1]]
@@ -124,6 +148,8 @@ for r in rows:
     f1 = r[ix["filtro1"]]
     if not desc or f1 in (None, "-"):
         stats["sin_datos"] += 1
+        continue
+    if f1 in EXCLUIDAS:
         continue
     if f1 not in by_f1:
         stats["cat_desconocida"].add(f1)
@@ -145,7 +171,10 @@ for r in rows:
         stats["largo_roto"] += 1
     if isinstance(raw_k, datetime.datetime):
         stats["kg_roto"] += 1
-    products.append([int(r[ix["id"]]), desc, ci, f2, gname, r[ix["venta_por"]] or "", largo, kg])
+    usa_ancho, usa_esp = FILTROS_MEDIDA.get(f1, (False, False))
+    ancho = medida(r[ix["filtro3"]]) if usa_ancho else None
+    esp = medida(r[ix["filtro4"]]) if usa_esp else None
+    products.append([int(r[ix["id"]]), desc, ci, f2, gname, r[ix["venta_por"]] or "", largo, kg, ancho, esp])
 
 # ---- subcategorías: orden por cantidad, ids únicos; agrupadores solo si hay 2 o más --------
 for cat in cats:
@@ -169,14 +198,17 @@ for cat in cats:
 
 # ---- productos compactos: [id, desc, catIdx, subIdx, grpIdx(-1), ventaPor, largo, kg] ------
 compact = []
-for pid, desc, ci, f2raw, gname, venta, largo, kg in products:
+for pid, desc, ci, f2raw, gname, venta, largo, kg, ancho, esp in products:
     cat = cats[ci]
     si = next(i for i, s in enumerate(cat["sub"]) if s["_raw"] == f2raw)
     gi = -1
     for j, g in enumerate(cat["sub"][si]["groups"]):
         if g["label"] == (gname or "Otros"):
             gi = j
-    compact.append([pid, desc, ci, si, gi, venta, largo, kg])
+    row = [pid, desc, ci, si, gi, venta, largo, kg]
+    if ancho is not None or esp is not None:
+        row += [ancho, esp]
+    compact.append(row)
 for cat in cats:
     for s in cat["sub"]:
         del s["_raw"]
@@ -201,7 +233,8 @@ catalog_js = (
 )
 products_js = (
     "/* Domissi Hermanos — productos activos.\n"
-    "   ARCHIVO GENERADO por tools/build_catalog.py. Fila: [código, descripción, categoría, subcategoría, agrupador, venta por, largo (m), kg/un.] */\n"
+    "   ARCHIVO GENERADO por tools/build_catalog.py. Fila: [código, descripción, categoría, subcategoría, agrupador, venta por, largo (m), kg/un., ancho (mm)*, espesor (mm)*]\n"
+    "   * opcionales: solo ANG/PLAN/T/U y Caños. */\n"
     "window.DOMISSI_PRODUCTS = " + dump(compact) + ";\n"
 )
 with open(os.path.join(ROOT, "js", "catalog-data.js"), "w", encoding="utf-8") as f:
