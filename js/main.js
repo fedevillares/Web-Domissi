@@ -124,7 +124,7 @@
   var heroDots = document.querySelectorAll(".hero__dots button");
   var heroEl = document.getElementById("hero");
   if (heroEl && heroSlides.length > 1) {
-    var HERO_DELAY = 5500;
+    var HERO_DELAY = 5500; /* 5,5 s por slide + 0,6 s de transición (CSS) */
     var current = 0;
     var timer = null;
     var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -172,11 +172,14 @@
     }, { passive: true });
     heroEl.addEventListener("touchcancel", function () { tracking = false; start(); }, { passive: true });
 
-    /* pausa con mouse o foco */
-    heroEl.addEventListener("mouseenter", stop);
-    heroEl.addEventListener("mouseleave", start);
-    heroEl.addEventListener("focusin", stop);
-    heroEl.addEventListener("focusout", start);
+    /* pausa solo con foco de teclado: el hero ocupa toda la pantalla, así que
+       pausar con el mouse encima frenaría el autoplay casi siempre */
+    heroEl.addEventListener("focusin", function (e) {
+      if (e.target.matches && e.target.matches(":focus-visible")) stop();
+    });
+    heroEl.addEventListener("focusout", function (e) {
+      if (!heroEl.contains(e.relatedTarget)) start();
+    });
     document.addEventListener("visibilitychange", function () { document.hidden ? stop() : start(); });
     heroEl.addEventListener("keydown", function (e) {
       if (e.key === "ArrowLeft") { goTo(current - 1); start(); }

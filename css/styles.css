@@ -469,9 +469,14 @@ h1, h2, h3, h4, p { margin: 0; }
   position: absolute; inset: 0;
   display: flex; align-items: flex-end;
   opacity: 0; visibility: hidden;
-  transition: opacity 0.6s var(--ease-out), visibility 0s linear 0.6s;
+  /* el slide saliente queda opaco debajo hasta que el entrante termina de aparecer:
+     crossfade limpio de 0.6s sin "bajón" de oscuridad a mitad de la transición */
+  transition: opacity 0s linear 0.6s, visibility 0s linear 0.6s;
 }
-.hero__slide.is-active { opacity: 1; visibility: visible; transition-delay: 0s; z-index: 1; }
+.hero__slide.is-active {
+  opacity: 1; visibility: visible; z-index: 1;
+  transition: opacity 0.6s var(--ease-out), visibility 0s;
+}
 .hero__pic, .hero__pic img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .hero__pic img { object-fit: cover; object-position: var(--hero-pos, center); }
 .hero__slide:nth-child(1) { --hero-pos: center 55%; }
@@ -510,9 +515,20 @@ h1, h2, h3, h4, p { margin: 0; }
   flex: none;
   box-shadow: 0 0 0 3px rgba(217, 140, 31, 0.25);
 }
-.hero h1 { max-width: 17ch; color: var(--white); text-shadow: var(--text-shadow-on-photo); }
-.hero p.lede { color: rgba(244,242,237,0.92); margin-top: 1.4rem; max-width: 46ch; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+.hero__title {
+  color: var(--white);
+  text-shadow: var(--text-shadow-on-photo);
+  font-size: clamp(2.7rem, 5.4vw, 5.2rem);
+  text-wrap: balance;
+}
+.hero__title span { display: block; }
+.hero p.lede { color: rgba(244,242,237,0.92); margin-top: 1.4rem; max-width: 52ch; text-wrap: pretty; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
 .hero__actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2.3rem; }
+/* el texto acompaña la entrada del slide */
+.hero__content > * { opacity: 0; transform: translateY(14px); transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out); }
+.hero__slide.is-active .hero__content > * { opacity: 1; transform: none; }
+.hero__slide.is-active .hero__content > :nth-child(2) { transition-delay: 0.08s; }
+.hero__slide.is-active .hero__content > :nth-child(3) { transition-delay: 0.16s; }
 
 .hero__controls {
   position: absolute; z-index: 2;
@@ -545,6 +561,8 @@ h1, h2, h3, h4, p { margin: 0; }
   .hero { min-height: min(760px, 100svh); }
   .hero__arrow { width: 40px; height: 40px; }
   .hero__slide:nth-child(1), .hero__slide:nth-child(3) { --hero-pos: center; }
+  /* en celular las líneas fluyen y se equilibran solas */
+  .hero__title span { display: inline; }
 }
 
 /* =========================================================
@@ -1207,7 +1225,7 @@ h1, h2, h3, h4, p { margin: 0; }
 @media (prefers-reduced-motion: reduce) {
   [data-reveal], [data-reveal-group] > * { opacity: 1; transform: none; transition: none; }
   html { scroll-behavior: auto; }
-  .hero__slide { transition: none; }
+  .hero__slide, .hero__content > * { transition: none; }
 }
 
 /* =========================================================
