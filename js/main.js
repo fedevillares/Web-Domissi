@@ -119,28 +119,70 @@
     setTimeout(function () { revealEls.forEach(reveal); }, 3000);
   }
 
-  /* ---------- Hero: carrusel de fondo (fade automático) ---------- */
+  /* ---------- Hero: carrusel de 3 slides (autoplay, flechas, dots, swipe) ---------- */
   var heroSlides = document.querySelectorAll(".hero__slide");
   var heroDots = document.querySelectorAll(".hero__dots button");
-  if (heroSlides.length > 1) {
+  var heroEl = document.getElementById("hero");
+  if (heroEl && heroSlides.length > 1) {
+    var HERO_DELAY = 5500;
     var current = 0;
-    var advance = function (index) {
+    var timer = null;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var goTo = function (index) {
+      index = (index + heroSlides.length) % heroSlides.length;
       heroSlides[current].classList.remove("is-active");
+      heroSlides[current].setAttribute("aria-hidden", "true");
       heroDots[current] && heroDots[current].classList.remove("is-active");
+      heroDots[current] && heroDots[current].setAttribute("aria-selected", "false");
       current = index;
       heroSlides[current].classList.add("is-active");
+      heroSlides[current].removeAttribute("aria-hidden");
       heroDots[current] && heroDots[current].classList.add("is-active");
+      heroDots[current] && heroDots[current].setAttribute("aria-selected", "true");
+      var img = heroSlides[current].querySelector("img");
+      if (img) img.loading = "eager";
     };
-    var timer = setInterval(function () {
-      advance((current + 1) % heroSlides.length);
-    }, 6000);
+    var stop = function () { clearInterval(timer); timer = null; };
+    var start = function () {
+      stop();
+      if (reduce) return;
+      timer = setInterval(function () { goTo(current + 1); }, HERO_DELAY);
+    };
+    heroSlides.forEach(function (sl, i) { if (i) sl.setAttribute("aria-hidden", "true"); });
     heroDots.forEach(function (dot, i) {
-      dot.addEventListener("click", function () {
-        clearInterval(timer);
-        advance(i);
-        timer = setInterval(function () { advance((current + 1) % heroSlides.length); }, 6000);
-      });
+      dot.addEventListener("click", function () { goTo(i); start(); });
     });
+    var prev = heroEl.querySelector("[data-hero-prev]");
+    var next = heroEl.querySelector("[data-hero-next]");
+    prev && prev.addEventListener("click", function () { goTo(current - 1); start(); });
+    next && next.addEventListener("click", function () { goTo(current + 1); start(); });
+
+    /* swipe táctil */
+    var sx = 0, sy = 0, tracking = false;
+    heroEl.addEventListener("touchstart", function (e) {
+      sx = e.touches[0].clientX; sy = e.touches[0].clientY; tracking = true; stop();
+    }, { passive: true });
+    heroEl.addEventListener("touchend", function (e) {
+      if (!tracking) return;
+      tracking = false;
+      var dx = e.changedTouches[0].clientX - sx;
+      var dy = e.changedTouches[0].clientY - sy;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) goTo(dx < 0 ? current + 1 : current - 1);
+      start();
+    }, { passive: true });
+    heroEl.addEventListener("touchcancel", function () { tracking = false; start(); }, { passive: true });
+
+    /* pausa con mouse o foco */
+    heroEl.addEventListener("mouseenter", stop);
+    heroEl.addEventListener("mouseleave", start);
+    heroEl.addEventListener("focusin", stop);
+    heroEl.addEventListener("focusout", start);
+    document.addEventListener("visibilitychange", function () { document.hidden ? stop() : start(); });
+    heroEl.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowLeft") { goTo(current - 1); start(); }
+      if (e.key === "ArrowRight") { goTo(current + 1); start(); }
+    });
+    start();
   }
 
   /* ---------- Historia: crossfade de imágenes institucionales ---------- */

@@ -175,10 +175,6 @@
       });
     }
 
-    function waLink(r) {
-      return WA + encodeURIComponent("Hola, te escribo a través del sitio web de Domissi. Quiero consultar por: " + r[1] + " (cód. " + r[0] + ").");
-    }
-
     function draw() {
       var list = filtered();
       var page = list.slice(0, shown);
@@ -192,10 +188,11 @@
       }
       count.textContent = list.length + (list.length === 1 ? " producto" : " productos");
       var showA = measures[0].sel && list.some(function (r) { return r[8] != null; });
+      var showP = list.some(function (r) { return photos[r[0]]; });
       var showE = measures[1].sel && list.some(function (r) { return r[9] != null; });
       table.innerHTML = '<div class="ptable-wrap"><table class="ptable"><thead><tr><th>Cód.</th><th>Descripción</th>' +
         (showA ? '<th class="num col-medida">Ancho</th>' : "") + (showE ? '<th class="num col-medida">Espesor</th>' : "") +
-        '<th class="num col-largo">Largo</th><th class="num col-kg">Kg/un.</th><th class="col-venta">Se vende por</th><th></th></tr></thead><tbody>' +
+        '<th class="num col-largo">Largo</th><th class="num col-kg">Kg/un.</th><th class="col-venta">Se vende por</th>' + (showP ? '<th></th>' : "") + '</tr></thead><tbody>' +
         page.map(function (r) {
           var ph = photos[r[0]];
           return '<tr><td class="code">' + r[0] + '</td><td class="desc">' + esc(r[1]) + '</td>' +
@@ -203,8 +200,7 @@
             (showE ? '<td class="num col-medida">' + (r[9] != null ? fmt(r[9]) + " mm" : "—") + "</td>" : "") +
             '<td class="num col-largo">' + (r[6] != null ? fmt(r[6]) + " m" : "—") +
             '</td><td class="num col-kg">' + (r[7] != null ? fmt(r[7]) : "—") + '</td><td class="col-venta">' + esc(r[5] || "—") +
-            '</td><td class="act">' + (ph ? '<button type="button" data-photo="' + r[0] + '" aria-label="Ver foto de ' + esc(r[1]) + '">' + ic.cam + '<span class="act__txt">Foto</span></button>' : "") +
-            '<a href="' + waLink(r) + '" target="_blank" rel="noopener" aria-label="Consultar ' + esc(r[1]) + ' por WhatsApp">' + ic.wa + '<span class="act__txt">Consultar</span></a></td></tr>';
+            '</td>' + (showP ? '<td class="act">' + (ph ? '<button type="button" data-photo="' + r[0] + '" aria-label="Ver foto de ' + esc(r[1]) + '">' + ic.cam + '<span class="act__txt">Foto</span></button>' : "") + '</td>' : "") + '</tr>';
         }).join("") + "</tbody></table></div>";
       more.innerHTML = list.length > shown ? '<button type="button" class="btn btn-secondary" id="moreBtn">Mostrar más (' + (list.length - shown) + ")</button>" : "";
     }

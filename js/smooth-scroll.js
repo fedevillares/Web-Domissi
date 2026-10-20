@@ -4,6 +4,9 @@
   if (typeof window.Lenis !== "function") return;
   if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+  /* En pantallas táctiles el scroll nativo ya es fluido: no se carga Lenis (ahorra CPU en el celular) */
+  if (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) return;
+
   var lenis = new window.Lenis({ lerp: 0.1, smoothWheel: true });
   window.lenis = lenis;
 

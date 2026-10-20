@@ -28,3 +28,7 @@ venv/
 *.exe
 local.properties
 .flutter-plugins-dependencies
+
+Fotos varias/
+.playwright-mcp/
+.lh/
