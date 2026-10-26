@@ -38,8 +38,14 @@
 <link rel="preload" as="image" href="assets/hero/hero-1.webp" media="(min-width: 701px)" fetchpriority="high">
 <link rel="stylesheet" href="css/styles.css?v=20261028">
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-GKKN6BD9QZ"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GKKN6BD9QZ');</script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GKKN6BD9QZ');
+/* gtag.js se carga con la primera interacción o 3,5 s después de load: fuera del camino del LCP */
+(function(){var done=false,evs=['pointerdown','keydown','scroll','touchstart'];
+function load(){if(done)return;done=true;evs.forEach(function(e){removeEventListener(e,load)});var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-GKKN6BD9QZ';document.head.appendChild(s);}
+evs.forEach(function(e){addEventListener(e,load,{once:true,passive:true})});
+addEventListener('load',function(){setTimeout(load,3500)});})();
+</script>
 </head>
 <body>
 <a class="skip-link" href="#main">Saltar al contenido</a>
