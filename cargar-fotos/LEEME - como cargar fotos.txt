@@ -1,0 +1,36 @@
+FOTOS DE PRODUCTOS — CÓMO CARGARLAS
+=====================================
+
+Cada producto del catálogo puede tener su propia foto. Cuando un producto tiene foto,
+en la tabla de productos aparece un botón "Foto" que la abre en grande.
+Los productos sin foto se ven igual que siempre.
+
+1) PONER LAS FOTOS EN ESTA CARPETA (cargar-fotos)
+   - El nombre del archivo tiene que EMPEZAR con el código del producto
+     (la columna "Cód." de la web, o el código del Excel de productos).
+       Ejemplos válidos:  1234.jpg   1234 barra nervurada 8mm.jpg
+   - Formatos: JPG o PNG. Las fotos de celular sirven tal cual, no hace falta achicarlas.
+   - Una foto por producto. Si dos productos usan la misma foto, copiala con cada código.
+
+2) HACER DOBLE CLIC EN "ACTUALIZAR FOTOS.bat"
+   - Achica las fotos para la web y arma la lista de productos con foto.
+   - Al final muestra un resumen y avisa si alguna foto tiene un código que no existe.
+   - Solo procesa las fotos nuevas o cambiadas: se puede correr las veces que haga falta.
+
+3) SUBIR AL HOSTING (por FTP o el panel del hosting), reemplazando lo que haya:
+   - la carpeta  assets/productos/fotos/
+   - el archivo  js/product-photos.js
+   Esta carpeta "cargar-fotos" NO hace falta subirla.
+
+CAMBIAR O SACAR UNA FOTO
+   - Cambiar: reemplazá el archivo en esta carpeta y volvé a correr ACTUALIZAR FOTOS.bat.
+   - Sacar: borrá el archivo de esta carpeta y volvé a correr ACTUALIZAR FOTOS.bat.
+   En los dos casos, después subí de nuevo la carpeta y el archivo del paso 3.
+
+CONSEJOS PARA LAS FOTOS
+   - Fondo limpio y buena luz, con el producto ocupando casi toda la foto.
+   - Mejor horizontales o cuadradas.
+
+SI WINDOWS NO DEJA EJECUTAR EL .bat
+   - Si la carpeta vino en un .zip descargado: clic derecho en el .zip > Propiedades >
+     tildar "Desbloquear" > Aceptar, y descomprimir de nuevo.

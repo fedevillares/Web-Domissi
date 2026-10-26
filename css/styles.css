@@ -180,6 +180,11 @@ h1, h2, h3, h4, p { margin: 0; }
 .btn-primary:hover { background: var(--brand-deep); }
 .btn-ghost-dark { background: transparent; color: var(--white); border-color: rgba(244,242,237,0.35); }
 .btn-ghost-dark:hover { border-color: var(--white); background: rgba(244,242,237,0.08); }
+/* "Ver productos" del hero: fondo oscuro translúcido, borde más marcado e íconos para que no quede opacado por el CTA azul */
+.btn-catalog { background: rgba(16,21,28,0.55); border-color: rgba(244,242,237,0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.btn-catalog:hover { background: rgba(16,21,28,0.75); border-color: var(--white); }
+.btn-catalog .btn__arrow { transition: transform 0.18s var(--ease-out); }
+.btn-catalog:hover .btn__arrow { transform: translateX(3px); }
 .btn-ghost {
   background: transparent; color: var(--ink); border-color: var(--steel-200);
 }
@@ -841,6 +846,8 @@ h1, h2, h3, h4, p { margin: 0; }
 .measure__clear { padding: 0.55rem 0.2rem; background: none; border: none; color: var(--brand); font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
 .measure__clear[hidden] { display: none; }
 @media (max-width: 640px) { .measure__field { flex: 1 1 8rem; } .measure__field select { width: 100%; } }
+/* Copy comercial de la subcategoría (tools/copys.xlsx, solo las marcadas "Si") */
+.catalog__desc { max-width: 72ch; color: var(--text-soft); font-size: 0.97rem; line-height: 1.6; margin: -0.25rem 0 1.25rem; }
 .catalog__count { font-size: 0.85rem; color: var(--text-soft); margin-bottom: 0.75rem; }
 
 .ptable-wrap { border: 1px solid var(--line); background: var(--white); overflow-x: auto; }
@@ -936,11 +943,12 @@ h1, h2, h3, h4, p { margin: 0; }
 /* =========================================================
    Footer
    ========================================================= */
-.site-footer { background: var(--ink); color: var(--text-on-dark); padding-block: clamp(3rem, 6vw, 4.5rem) 1.75rem; }
+/* Línea que separa la banda de CTAs (mismo fondo --ink) del footer */
+.site-footer { border-top: 1px solid rgba(244,242,237,0.14); background: var(--ink); color: var(--text-on-dark); padding-block: clamp(3rem, 6vw, 4.5rem) 1.75rem; }
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.3fr 1fr 1fr 1fr;
-  gap: 2.5rem;
+  grid-template-columns: 1.1fr 0.8fr 1.25fr 1fr 1.25fr;
+  gap: 2.25rem;
   padding-bottom: clamp(2.5rem, 5vw, 3.5rem);
   border-bottom: 1px solid rgba(244,242,237,0.14);
 }
@@ -951,6 +959,8 @@ h1, h2, h3, h4, p { margin: 0; }
 .footer-col ul { display: flex; flex-direction: column; gap: 0.65rem; }
 .footer-col a, .footer-col address { color: var(--text-on-dark); font-size: 0.95rem; font-style: normal; }
 .footer-col a:hover { color: var(--white); text-decoration: underline; text-underline-offset: 3px; }
+.footer-col a { overflow-wrap: anywhere; }
+.footer-col--jobs p { color: var(--text-on-dark-soft); font-size: 0.92rem; line-height: 1.55; margin-bottom: 0.75rem; max-width: 34ch; }
 .footer-social { display: flex; gap: 0.75rem; margin-top: 1.2rem; }
 .footer-social a {
   width: 38px; height: 38px; border-radius: 50%;
@@ -976,6 +986,9 @@ h1, h2, h3, h4, p { margin: 0; }
 }
 .footer-credit:hover { color: var(--white); text-decoration-color: currentColor; }
 
+@media (max-width: 1100px) {
+  .footer-grid { grid-template-columns: repeat(3, 1fr); }
+}
 @media (max-width: 900px) {
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }

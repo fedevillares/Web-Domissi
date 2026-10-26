@@ -49,8 +49,8 @@
     setTitle("Productos");
     var html = '<section class="page-hero"><div class="wrap">' +
       '<span class="page-hero__eyebrow">Productos</span>' +
-      '<h1 class="display-1">Acero para cada etapa de tu obra o tu producción.</h1>' +
-      '<p class="lede">' + cats.length + " categorías, de la estructura al detalle. Elegí una y consultá precio y disponibilidad con un asesor.</p>" +
+      '<h1 class="display-1">Explorá toda nuestra variedad de productos.</h1>' +
+      '<p class="lede">Conocé nuestra amplia selección de materiales para la construcción y la industria. Consultanos por medidas, espesores, precios y disponibilidad.</p>' +
       '</div></section><section class="section"><div class="wrap">';
     groupNames.forEach(function (g, gi) {
       var list = cats.filter(function (c) { return c.group === gi; });
@@ -81,14 +81,15 @@
       (sub ? '<a href="' + url(cat) + '">' + esc(cat.label) + '</a><span aria-hidden="true">/</span><span>' + esc(sub.label) + "</span>" : "<span>" + esc(cat.label) + "</span>") + "</nav>";
 
     var html = '<section class="cat-cover"><div class="cat-cover__bg" style="background-image:url(\'' + cat.image + '\')"></div><div class="wrap">' +
-      crumbs + "<h1>" + esc(cat.label) + "</h1>" + (cat.intro ? "<p>" + esc(cat.intro) + "</p>" : "") + "</div></section>" +
+      crumbs + "<h1>" + esc(cat.label) + "</h1>" + (cat.desc || cat.intro ? "<p>" + esc(cat.desc || cat.intro) + "</p>" : "") + "</div></section>" +
       '<section class="section"><div class="wrap catalog"><aside class="catalog__side" aria-label="Subcategorías"><h2>' + esc(cat.label) + "</h2><ul>" +
       '<li><a href="' + url(cat) + '"' + (!sub ? ' class="is-active"' : "") + ">Todo<small>" + cat.count + "</small></a></li>" +
       cat.sub.map(function (s) {
         return '<li><a href="' + url(cat, s) + '"' + (sub && s.id === sub.id ? ' class="is-active"' : "") + ">" + esc(s.label) + "<small>" + s.count + "</small></a></li>";
       }).join("") + '</ul><a class="side-other" href="productos.html">← Todas las categorías</a></aside>' +
       '<div class="catalog__main"><div class="catalog__bar"><h2>' + esc(title) + '</h2>' +
-      '<label class="catalog__find">' + ic.search + '<input type="search" id="catFind" placeholder="Filtrar por medida o nombre…" aria-label="Filtrar productos" value="' + esc(query) + '"></label></div>';
+      '<label class="catalog__find">' + ic.search + '<input type="search" id="catFind" placeholder="Filtrar por medida o nombre…" aria-label="Filtrar productos" value="' + esc(query) + '"></label></div>' +
+      (sub && sub.desc ? '<p class="catalog__desc">' + esc(sub.desc) + "</p>" : "");
 
     if (sub && sub.groups.length) {
       html += '<div class="chips" role="group" aria-label="Tipo">' +

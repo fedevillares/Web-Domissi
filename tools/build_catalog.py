@@ -12,6 +12,8 @@ Reglas:
     categorías de FILTROS_MEDIDA. Si una categoría no tiene datos, el filtro no se muestra.
   - Categorías de EXCLUIDAS (ej. Aluminios) no se publican.
   - Largo / peso que Excel convirtió en fecha se muestran vacíos (no se inventa el dato).
+  - Copys: tools/copys.xlsx. Hoja "Catálogo Subcategorías": el copy de cada subcategoría se publica
+    solo si la columna "Usar" dice "Si". Hoja "Copys por Categoría y Resumen": bajada de cada categoría.
 """
 import datetime, json, os, re, sys, unicodedata
 import openpyxl
@@ -129,6 +131,49 @@ def medida(v):
     return n if n > 0 else None
 
 
+# ---- Copys comerciales (tools/copys.xlsx) ---------------------------------------------------
+COPYS = os.path.join(ROOT, "tools", "copys.xlsx")
+# Nombres del Excel de copys que no coinciden con la etiqueta del sitio (clave ya normalizada con key()).
+COPY_ALIAS = {
+    "laminada en frio": "laminado en frio", "laminada en caliente": "laminado en caliente",
+    "barra adn nervurada": "barra adn nervurado", "mallas de construccion": "mallas construccion",
+    "complementos para portones": "complementos p portones", "tubos sin costura": "tubos s c",
+    "chapas plasticas policarbonato": "chapas plasticas y policarbonato",
+    "chapas conformadas plasticas": "chapa conformada plastica", "chapas conformadas de color": "chapa conformada color",
+    "chapa lisa de color en hojas": "chapa lisa color en hojas", "chapas para persianas": "chapas persianas",
+    "acero inoxidable varios": "acero inoxidable varios",
+}
+CAT_ALIAS = {
+    "complementos para chapas de techo": "complementos para chapa de techo",
+    "hierros y mallas de construccion": "hierros y mallas para construccion",
+    "mallas job shop y metal desplegado": "mallas job y metal desplegado",
+}
+
+
+def key(s):
+    return slug(str(s)).replace("-", " ")
+
+
+def load_copys():
+    """{clave categoría: copy} y {(clave categoría, clave subcategoría): copy} (solo Usar = Si)."""
+    if not os.path.exists(COPYS):
+        return {}, {}
+    cw = openpyxl.load_workbook(COPYS, data_only=True)
+    sub_copy, cat_copy = {}, {}
+    for r in cw["Catálogo Subcategorías"].iter_rows(min_row=2, values_only=True):
+        if not r[2] or not r[3]:
+            continue
+        if str(r[5] or "").strip().lower() not in ("si", "sí"):
+            continue
+        ck, sk = key(r[1]), key(r[2])
+        sub_copy[(CAT_ALIAS.get(ck, ck), COPY_ALIAS.get(sk, sk))] = str(r[3]).strip()
+    for r in cw["Copys por Categoría y Resumen"].iter_rows(min_row=5, values_only=True):
+        if isinstance(r[0], int) and r[1] and r[2]:
+            ck = key(r[1])
+            cat_copy[CAT_ALIAS.get(ck, ck)] = str(r[2]).strip()
+    return cat_copy, sub_copy
+
+
 wb = openpyxl.load_workbook(SRC, data_only=True)
 ws = wb.active
 head = [c.value for c in ws[1]]
@@ -213,6 +258,20 @@ for cat in cats:
     for s in cat["sub"]:
         del s["_raw"]
 
+# ---- copys: bajada de categoría (desc) y de subcategoría (desc, solo las marcadas "Si") -----
+cat_copy, sub_copy = load_copys()
+used_copys = set()
+for cat in cats:
+    ck = key(cat["label"])
+    if ck in cat_copy:
+        cat["desc"] = cat_copy[ck]
+    for s in cat["sub"]:
+        k = (ck, key(s["label"]))
+        if k in sub_copy:
+            s["desc"] = sub_copy[k]
+            used_copys.add(k)
+copys_sin_usar = sorted(set(sub_copy) - used_copys)
+
 # categorías sin productos activos no se publican; reindexar
 keep = [i for i, c in enumerate(cats) if c["count"] > 0]
 remap = {old: new for new, old in enumerate(keep)}
@@ -244,6 +303,9 @@ with open(os.path.join(ROOT, "js", "products-data.js"), "w", encoding="utf-8") a
 
 print("filas Excel:", stats["total"], "| inactivas:", stats["inactivos"], "| vacías/sin categoría:", stats["sin_datos"])
 print("publicados:", len(compact), "| categorías:", len(cats), "| largo perdido (fecha):", stats["largo_roto"], "| kg perdido (fecha):", stats["kg_roto"])
+print("copys de subcategoría publicados:", len(used_copys), "| de categoría:", sum(1 for c in cats if c.get("desc")))
+if copys_sin_usar:
+    print("COPYS 'Si' SIN SUBCATEGORIA EN EL SITIO!", copys_sin_usar)
 if stats["cat_desconocida"]:
     print("CATEGORIAS SIN MAPEAR!", stats["cat_desconocida"])
 for c in cats:
