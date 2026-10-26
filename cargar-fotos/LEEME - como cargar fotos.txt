@@ -20,12 +20,13 @@ Los productos sin foto se ven igual que siempre.
 3) SUBIR AL HOSTING (por FTP o el panel del hosting), reemplazando lo que haya:
    - la carpeta  assets/productos/fotos/
    - el archivo  js/product-photos.js
+   - el archivo  productos.html  (hace que los visitantes vean las fotos nuevas enseguida)
    Esta carpeta "cargar-fotos" NO hace falta subirla.
 
 CAMBIAR O SACAR UNA FOTO
    - Cambiar: reemplazá el archivo en esta carpeta y volvé a correr ACTUALIZAR FOTOS.bat.
    - Sacar: borrá el archivo de esta carpeta y volvé a correr ACTUALIZAR FOTOS.bat.
-   En los dos casos, después subí de nuevo la carpeta y el archivo del paso 3.
+   En los dos casos, después subí de nuevo la carpeta y los archivos del paso 3.
 
 CONSEJOS PARA LAS FOTOS
    - Fondo limpio y buena luz, con el producto ocupando casi toda la foto.

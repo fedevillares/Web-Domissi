@@ -80,8 +80,14 @@ $js = "/* Domissi Hermanos — fotos por producto (código → imagen).`r`n" +
       "window.DOMISSI_PHOTOS = {" + $(if ($lines.Count) { "`r`n" + ($lines -join ",`r`n") + "`r`n" } else { "" }) + "};`r`n"
 [IO.File]::WriteAllText($jsFile, $js, (New-Object Text.UTF8Encoding $false))
 
+# Nueva versión en productos.html para que los navegadores no sigan usando la lista vieja guardada en caché
+$page = Join-Path $root "productos.html"
+$html = [IO.File]::ReadAllText($page, [Text.Encoding]::UTF8)
+$html = [regex]::Replace($html, 'js/product-photos\.js(\?v=[^"]*)?"', 'js/product-photos.js?v=' + (Get-Date -Format "yyyyMMddHHmmss") + '"')
+[IO.File]::WriteAllText($page, $html, (New-Object Text.UTF8Encoding $false))
+
 Write-Host ""
 Write-Host "Listo. Productos con foto: $($photos.Count)  (nuevas o cambiadas: $nuevas, quitadas: $borradas)"
 if ($avisos.Count) { Write-Host ""; Write-Host "Revisar:" -ForegroundColor Yellow; $avisos | ForEach-Object { Write-Host $_ -ForegroundColor Yellow } }
 Write-Host ""
-Write-Host "Para publicar, subí al hosting: la carpeta assets/productos/fotos/ y el archivo js/product-photos.js"
+Write-Host "Para publicar, subí al hosting: la carpeta assets/productos/fotos/, js/product-photos.js y productos.html"
