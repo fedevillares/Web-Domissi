@@ -55,6 +55,10 @@ Extra: Lighthouse desktop reporta una categoría "Agentic browsing" en 67 (agent
 | S3 | `llms.txt`, SEO/marca, schema Organization, páginas about/privacy | Pendiente |
 | S4 | Code review, verificación en preview y entrega | Pendiente |
 
+### Decisiones aprobadas (2026-10-26)
+1. **Medición local**: se mide con `python -m http.server`, comparando solo diferencias relativas (no son puntajes finales). Los headers de `vercel.json` y la compresión se validan en el preview de S4 (`npx vercel deploy`, sin remote).
+2. **Caché**: `immutable` + 1 año solo para assets con hash/versión en el nombre; para los que usan `?v=` manual, `max-age=3600, stale-while-revalidate=86400`. Un paso de build para versionar por hash de contenido se propone pero **no se implementa sin consulta**.
+
 ### Notas / decisiones abiertas
 - No hay `git remote` configurado: no hay nada que pushear ni previews de Vercel hasta que se conecte el repo. La verificación final de Lighthouse contra la rama requerirá un preview deployment o servir local (`python -m http.server`).
 - Los reportes `baseline-*.json` están en `.gitignore`.
