@@ -34,7 +34,7 @@
 <link rel="preload" href="assets/fonts/big-shoulders-display-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" as="image" href="assets/hero/hero-1-m.webp" media="(max-width: 700px)" fetchpriority="high">
 <link rel="preload" as="image" href="assets/hero/hero-1.webp" media="(min-width: 701px)" fetchpriority="high">
-<link rel="stylesheet" href="css/styles.css?v=20261030">
+<link rel="stylesheet" href="css/styles.css?v=20261031">
 
 <script>
 window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GKKN6BD9QZ');
@@ -120,7 +120,7 @@ addEventListener('load',function(){setTimeout(load,3500)});})();
 <!-- ===== Hero (3 slides) ===== -->
 <section class="hero" id="hero" aria-roledescription="carrusel" aria-label="Destacados de Domissi">
   <div class="hero__track">
-    <article class="hero__slide is-active" role="group" aria-roledescription="slide" aria-label="1 de 3">
+    <div class="hero__slide is-active" role="group" aria-roledescription="slide" aria-label="1 de 3">
       <picture class="hero__pic">
         <source media="(max-width: 700px)" srcset="assets/hero/hero-1-m.webp" width="800" height="1040">
         <img src="assets/hero/hero-1.webp" alt="Caños de acero apilados en el depósito de Domissi" width="1920" height="1080" fetchpriority="high" decoding="async">
@@ -137,8 +137,8 @@ addEventListener('load',function(){setTimeout(load,3500)});})();
           <a class="btn btn-ghost-dark btn-catalog" href="productos.html"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>Ver productos<svg class="btn__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
       </div>
-    </article>
-    <article class="hero__slide" role="group" aria-roledescription="slide" aria-label="2 de 3">
+    </div>
+    <div class="hero__slide" role="group" aria-roledescription="slide" aria-label="2 de 3">
       <picture class="hero__pic">
         <source media="(max-width: 700px)" data-srcset="assets/hero/hero-2-m.webp" width="800" height="1040">
         <img data-src="assets/hero/hero-2.webp" alt="Camión de la flota propia de Domissi dentro del depósito" width="1920" height="1080" decoding="async">
@@ -155,8 +155,8 @@ addEventListener('load',function(){setTimeout(load,3500)});})();
           <a class="btn btn-ghost-dark btn-catalog" href="productos.html"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>Ver productos<svg class="btn__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
       </div>
-    </article>
-    <article class="hero__slide" role="group" aria-roledescription="slide" aria-label="3 de 3">
+    </div>
+    <div class="hero__slide" role="group" aria-roledescription="slide" aria-label="3 de 3">
       <picture class="hero__pic">
         <source media="(max-width: 700px)" data-srcset="assets/hero/hero-3-m.webp" width="800" height="1040">
         <img data-src="assets/hero/hero-3.webp" alt="Pilas de mallas de acero almacenadas en el galpón de Domissi" width="1920" height="1080" decoding="async">
@@ -173,7 +173,7 @@ addEventListener('load',function(){setTimeout(load,3500)});})();
           <a class="btn btn-ghost-dark btn-catalog" href="productos.html"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>Ver productos<svg class="btn__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         </div>
       </div>
-    </article>
+    </div>
   </div>
   <div class="hero__controls">
     <button type="button" class="hero__arrow" data-hero-prev aria-label="Slide anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
@@ -275,7 +275,7 @@ addEventListener('load',function(){setTimeout(load,3500)});})();
         </div>
       </div>
       <div class="footer-col">
-        <h5>Navegación</h5>
+        <h4>Navegación</h4>
         <ul>
           <li><a href="index.html">Inicio</a></li>
           <li><a href="productos.html">Productos</a></li>
@@ -284,7 +284,7 @@ addEventListener('load',function(){setTimeout(load,3500)});})();
         </ul>
       </div>
       <div class="footer-col">
-        <h5>Contacto</h5>
+        <h4>Contacto</h4>
         <ul>
           <li><a href="tel:+543464455600">03464 45-5600</a></li>
           <li><a href="mailto:info@domissihermanos.com.ar">info@domissihermanos.com.ar</a></li>
@@ -292,13 +292,13 @@ addEventListener('load',function(){setTimeout(load,3500)});})();
         </ul>
       </div>
       <div class="footer-col">
-        <h5>Ubicación</h5>
+        <h4>Ubicación</h4>
         <address>
           <a href="https://maps.app.goo.gl/EjJQR3NkxiCu3Ltn8" target="_blank" rel="noopener">Blvd. Colón 2499<br>S2170 Casilda<br>Santa Fe, Argentina</a>
         </address>
       </div>
       <div class="footer-col footer-col--jobs">
-        <h5>Trabajá con nosotros</h5>
+        <h4>Trabajá con nosotros</h4>
         <p>¿Querés formar parte de Domissi? Envianos tu CV y te tendremos en cuenta en futuras búsquedas.</p>
         <a href="mailto:rrhh@domissihermanos.com.ar">rrhh@domissihermanos.com.ar</a>
       </div>
@@ -313,14 +313,14 @@ addEventListener('load',function(){setTimeout(load,3500)});})();
   </div>
 </footer>
 
-<script defer src="js/catalog-data.js?v=20261030"></script>
+<script defer src="js/catalog-data.js?v=20261031"></script>
 <script defer src="js/search-core.js"></script>
 <script defer src="js/nav-search.js"></script>
 <script defer src="js/search-overlay.js"></script>
 <script defer src="js/nav.js"></script>
 <script defer src="js/vendor/lenis.min.js"></script>
 <script defer src="js/smooth-scroll.js"></script>
-<script defer src="js/main.js?v=20261030"></script>
+<script defer src="js/main.js?v=20261031"></script>
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>
 </html>

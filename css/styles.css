@@ -958,7 +958,7 @@ h1, h2, h3, h4, p { margin: 0; }
 .footer-brand .brand-mark { height: 24px; margin-bottom: 1.1rem; }
 .footer-brand .brand-mark path { fill: var(--white); }
 .footer-brand p { color: var(--text-on-dark-soft); max-width: 32ch; }
-.footer-col h5 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-on-dark-soft); margin-bottom: 1.1rem; }
+.footer-col h4 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-on-dark-soft); margin-bottom: 1.1rem; }
 .footer-col ul { display: flex; flex-direction: column; gap: 0.65rem; }
 .footer-col a, .footer-col address { color: var(--text-on-dark); font-size: 0.95rem; font-style: normal; }
 .footer-col a:hover { color: var(--white); text-decoration: underline; text-underline-offset: 3px; }
