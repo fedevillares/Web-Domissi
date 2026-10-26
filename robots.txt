@@ -1,0 +1,42 @@
+# Domissi Hermanos — domissihermanos.com.ar
+# Sitio abierto a buscadores y a agentes de IA.
+# Resumen para LLMs: /llms.txt · Catálogo completo en texto: /llms-full.txt
+
+User-agent: *
+Allow: /
+
+# Rastreadores y agentes de IA: permitidos explícitamente
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+Sitemap: https://domissihermanos.com.ar/sitemap.xml

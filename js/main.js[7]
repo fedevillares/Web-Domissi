@@ -1,0 +1,48 @@
+const toggle = document.getElementById('navToggle');
+const nav = document.getElementById('primaryNav');
+if (toggle && nav) {
+  const close = () => {
+    nav.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Abrir menú');
+  };
+  toggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+  });
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+}
+
+// Despliegue por scroll en cascada: cuando un elemento .reveal entra en
+// pantalla, calculamos su posición entre los hermanos .reveal del mismo
+// contenedor (.caps li, .flow li, .figures>div, .gal figure...) y le damos
+// un pequeño delay proporcional, para que el grupo se despliegue como una
+// secuencia fluida en lugar de aparecer todo de golpe.
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    const parent = e.target.parentElement;
+    const siblings = parent ? Array.from(parent.children).filter(c => c.classList.contains('reveal')) : [e.target];
+    const idx = siblings.indexOf(e.target);
+    e.target.style.transitionDelay = `${Math.min(Math.max(idx, 0), 7) * 85}ms`;
+    e.target.classList.add('in');
+    io.unobserve(e.target);
+  });
+}, { threshold: 0.14, rootMargin: '0px 0px -6% 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+const quickForm = document.getElementById('quickQuoteForm');
+if (quickForm) {
+  quickForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nombre = quickForm.nombre.value.trim();
+    const empresa = quickForm.empresa.value.trim();
+    const mensaje = quickForm.mensaje.value.trim();
+    if (!nombre || !mensaje) return;
+    const partes = [`Hola, soy ${nombre}${empresa ? ' de ' + empresa : ''}.`, mensaje];
+    const texto = encodeURIComponent(partes.join(' '));
+    window.open(`https://wa.me/5493416924220?text=${texto}`, '_blank', 'noopener');
+  });
+}
