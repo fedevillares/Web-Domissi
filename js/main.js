@@ -119,6 +119,25 @@
     setTimeout(function () { revealEls.forEach(reveal); }, 3000);
   }
 
+  /* ---------- Imágenes decorativas bajo el pliegue: se piden a 300 px del viewport ----------
+     (el lazy nativo usa un umbral de varios miles de px con red lenta y compite con el LCP) */
+  var lazyImgs = Array.prototype.slice.call(document.querySelectorAll("img[data-lazy-src]"));
+  if (lazyImgs.length) {
+    var loadLazy = function (img) { img.src = img.getAttribute("data-lazy-src"); img.removeAttribute("data-lazy-src"); };
+    if ("IntersectionObserver" in window) {
+      var lazyIo = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          lazyIo.unobserve(e.target);
+          loadLazy(e.target.querySelector("img[data-lazy-src]"));
+        });
+      }, { rootMargin: "300px 0px" });
+      lazyImgs.forEach(function (img) { lazyIo.observe(img.closest(".offer-panel, .cta-cell") || img.parentNode); });
+    } else {
+      window.addEventListener("load", function () { lazyImgs.forEach(loadLazy); });
+    }
+  }
+
   /* ---------- Hero: carrusel de 3 slides (autoplay, flechas, dots, swipe) ---------- */
   var heroSlides = document.querySelectorAll(".hero__slide");
   var heroDots = document.querySelectorAll(".hero__dots button");
