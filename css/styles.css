@@ -591,9 +591,9 @@ h1, h2, h3, h4, p { margin: 0; }
 .offer-panel__media {
   position: relative;
   min-height: 340px;
-  background-size: cover;
-  background-position: center;
+  overflow: hidden;
 }
+.offer-panel__media > img, .cta-cell__bg > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .offer-panel__media::after {
   content: "";
   position: absolute; inset: 0;
@@ -924,7 +924,6 @@ h1, h2, h3, h4, p { margin: 0; }
 }
 .cta-cell__bg {
   position: absolute; inset: 0;
-  background-size: cover; background-position: center;
   opacity: 0.28;
 }
 .cta-cell::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(16,21,28,0.2), rgba(16,21,28,0.85)); }
