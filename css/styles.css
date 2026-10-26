@@ -693,7 +693,7 @@ h1, h2, h3, h4, p { margin: 0; }
   display: grid; place-items: center;
 }
 .value-icon svg { width: 30px; height: 30px; }
-.value-row h4 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; margin-bottom: 0.35rem; }
+.value-row h3 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; margin-bottom: 0.35rem; }
 .value-row p { color: var(--text-soft); max-width: 60ch; }
 
 /* =========================================================
@@ -958,7 +958,7 @@ h1, h2, h3, h4, p { margin: 0; }
 .footer-brand .brand-mark { height: 24px; margin-bottom: 1.1rem; }
 .footer-brand .brand-mark path { fill: var(--white); }
 .footer-brand p { color: var(--text-on-dark-soft); max-width: 32ch; }
-.footer-col h4 { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-on-dark-soft); margin-bottom: 1.1rem; }
+.footer-col__title { margin-top: 1.67em; font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-on-dark-soft); margin-bottom: 1.1rem; }
 .footer-col ul { display: flex; flex-direction: column; gap: 0.65rem; }
 .footer-col a, .footer-col address { color: var(--text-on-dark); font-size: 0.95rem; font-style: normal; }
 .footer-col a:hover { color: var(--white); text-decoration: underline; text-underline-offset: 3px; }
@@ -1034,8 +1034,9 @@ h1, h2, h3, h4, p { margin: 0; }
   display: flex; align-items: center; justify-content: center;
 }
 .contact-channel__icon svg { width: 21px; height: 21px; }
-.contact-channel h3 { font-size: 1.05rem; margin-bottom: 0.3rem; }
+.contact-channel h2, .contact-channel h3 { font-size: 1.05rem; margin-bottom: 0.3rem; }
 .contact-channel p { color: var(--text-soft); }
+.contact-channel > div:not(.contact-channel__icon) { min-width: 0; overflow-wrap: anywhere; }
 .contact-channel a.link { color: var(--brand); font-weight: 600; }
 .contact-hours { margin-top: 2.5rem; padding: 1.5rem; background: var(--paper-dim); border-radius: var(--radius-md); }
 .contact-hours h4 { font-size: 0.95rem; margin-bottom: 0.6rem; }
@@ -1082,7 +1083,7 @@ h1, h2, h3, h4, p { margin: 0; }
 .form-status.is-success { display: block; background: #e6f4ea; color: #1f6d3c; }
 .form-status.is-error { display: block; background: #fbeaea; color: #a53328; }
 @media (max-width: 900px) {
-  .contact-grid { grid-template-columns: 1fr; }
+  .contact-grid { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 560px) {
   .form-row { grid-template-columns: 1fr; }
