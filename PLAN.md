@@ -80,7 +80,11 @@ Comparar prod-antes con local-después **no** es válido; la columna "Mobile ant
 
 ## Decisiones tomadas y pendientes
 
-Aprobadas (arriba): medición local relativa; política de caché.
+Aprobadas (2026-10-26):
+1. **Medición local**: se mide con `python -m http.server`, comparando solo diferencias relativas (no son puntajes finales). Los headers de `vercel.json` y la compresión se validan en el preview de S4 (`npx vercel deploy`, sin remote).
+2. **Caché**: `immutable` + 1 año solo para assets con hash/versión en el nombre; para los que usan `?v=` manual, `max-age=3600, stale-while-revalidate=86400`. Un paso de build para versionar por hash de contenido se propone pero **no se implementa sin consulta**.
+
+Pendientes de tu OK:
 
 3. **Analytics diferido (requiere tu OK)**: las visitas que se van en menos de ~3,5 s sin tocar ni hacer scroll ya no se registran en GA4. Alternativa: cargar `gtag.js` en `requestIdleCallback`, que registra casi todo pero resta parte de la ganancia en TBT.
 4. **Fotos de las franjas CTA (requiere tu decisión de diseño)**: en `index`, `empresa` y `productos`, las 3 fotos de fondo de `.cta-cell__bg` miden 0 px de alto en producción (la regla `.cta-cell > *` pisa su `position:absolute`), así que **nunca se vieron**, pero se descargaban (~720 KB). Mantuve el aspecto actual. Opciones: (A) eliminarlas del HTML y no descargar nada (recomendada si el diseño actual es el deseado); (B) hacerlas visibles con opacidad 0,28 como indica el CSS, lo que cambia el diseño; (C) dejarlas como están (cargan solo al acercarse).
