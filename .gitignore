@@ -37,3 +37,6 @@ Fotos varias/
 # Lighthouse baselines
 baseline-*.json
 final-*.json
+
+.vercel
+.env*
