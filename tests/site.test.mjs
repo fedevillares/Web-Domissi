@@ -62,7 +62,7 @@ test("vercel.json: security headers and cache policy", () => {
   /** @type {{ headers: { source: string, headers: { key: string, value: string }[] }[] }} */
   const cfg = JSON.parse(read("vercel.json"));
   const all = (cfg.headers.find((h) => h.source === "/(.*)")?.headers ?? []).map((h) => h.key);
-  for (const k of ["X-Content-Type-Options", "Referrer-Policy", "Permissions-Policy"]) assert.ok(all.includes(k), k);
+  for (const k of ["X-Content-Type-Options", "Referrer-Policy", "Permissions-Policy", "X-Frame-Options", "Content-Security-Policy"]) assert.ok(all.includes(k), k);
   const cache = (/** @type {string} */ src) => cfg.headers.find((h) => h.source === src)?.headers.find((h) => h.key === "Cache-Control")?.value ?? "";
   assert.match(cache("/assets/fonts/(.*)"), /immutable/);
   assert.match(cache("/assets/((?!fonts/).*)"), /max-age=3600, stale-while-revalidate=86400/);
