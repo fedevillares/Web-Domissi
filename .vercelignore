@@ -1,0 +1,17 @@
+# Allowlist: only the public site, the function and its config are uploaded.
+# Everything else (PLAN.md, tests/, tools/, cargar-fotos/, Lighthouse dumps, local
+# tool folders) stays out of the deployment. `vercel deploy` does not read .gitignore.
+/*
+!/*.html
+!/css
+!/js
+!/assets
+!/api
+!/middleware.js
+!/vercel.json
+!/package.json
+!/package-lock.json
+!/llms.txt
+!/llms-full.txt
+!/robots.txt
+!/sitemap.xml
