@@ -323,7 +323,7 @@ Checks: `npm test` **123/123** (24 nuevos en `tests/s3.test.mjs`), `npm run lint
 
 ### TODOs del formulario (a cargo del cliente)
 
-1. **Generar la access key** en web3forms.com con info@domissihermanos.com.ar (llega por email) y pegarla en `data-web3forms-key=""` de `#contactForm` en `contacto.html`. Es pública por diseño; no se inventó ninguna.
+1. ~~Generar la access key~~ Hecho: la clave que entregó el cliente está cargada en `data-web3forms-key` de `#contactForm` (`contacto.html`). Es pública por diseño. Falta confirmar que la casilla info@domissihermanos.com.ar recibió y validó el alta.
 2. **Restringir dominios permitidos** en el panel de Web3Forms (domissihermanos.com.ar y web-domissi.vercel.app).
 3. Opcional: activar captcha (hCaptcha/reCAPTCHA) en Web3Forms si llega spam; el honeypot ya filtra bots simples.
 4. Confirmar plazo de conservación y revisión legal del texto de privacidad (TODOs 2 y 3 de S3).
