@@ -1,8 +1,10 @@
 {
   "functions": {
-    "api/agents.js": { "includeFiles": "{404.html,index.html,contacto.html,js/catalog-data.js,js/products-data.js}" }
+    "api/agents.js": { "includeFiles": "{404.html,index.html,contacto.html,about.html,privacy.html,js/catalog-data.js,js/products-data.js}" }
   },
   "rewrites": [
+    { "source": "/about", "destination": "/about.html" },
+    { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/mcp", "destination": "/api/agents?route=mcp" },
     { "source": "/mcp/server-card", "destination": "/api/agents?route=server-card" },
     { "source": "/.well-known/mcp", "destination": "/api/agents?route=server-card" },
@@ -14,7 +16,7 @@
   ],
   "headers": [
     {
-      "source": "/",
+      "source": "/(about|privacy)?(\\.html)?",
       "headers": [{ "key": "Vary", "value": "Accept" }]
     },
     {

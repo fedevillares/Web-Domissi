@@ -26,7 +26,9 @@ La ruta \`${safePath(path)}\` no existe en el sitio de Domissi Hermanos o cambi�
 - [llms.txt](${origin}/llms.txt): resumen del sitio para agentes y LLMs.
 - [Sitemap](${origin}/sitemap.xml): todas las páginas públicas.
 - [Catálogo de productos](${origin}/productos.html)
+- [Quiénes somos](${origin}/about.html)
 - [Contacto](${origin}/contacto.html)
+- [Política de privacidad](${origin}/privacy.html)
 `;
 }
 

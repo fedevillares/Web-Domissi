@@ -63,7 +63,8 @@ export function pageMeta(rel) {
   const doc = page(rel);
   const title = find(doc, (el) => el.tag === "title");
   return {
-    title: title ? textOf(title).trim() : "",
+    // <title> holds raw text, which textOf skips.
+    title: title?.children[0]?.type === "text" ? title.children[0].text.trim() : "",
     description: attr(find(doc, (el) => el.tag === "meta" && el.attrs.name === "description"), "content"),
     canonical: attr(find(doc, (el) => el.tag === "link" && el.attrs.rel === "canonical"), "href"),
     siteName: attr(find(doc, (el) => el.tag === "meta" && el.attrs.property === "og:site_name"), "content"),
