@@ -243,6 +243,77 @@ etag: "AQQ0bV3rtXw0rbUagDlPj2dvtcA"
 
 Es un emulador: el comportamiento real de Vercel (middleware, precedencia de `rewrites`, `includeFiles`, merge de `Vary`) se confirma en el preview de S4 (pendiente 8).
 
+## Resultados S3: descubribilidad y confianza
+
+Sin cambios de diseño. Solo datos que ya estaban en el sitio o en el repo; lo que falta quedó como TODO (lista abajo).
+
+### Qué se hizo
+
+| Entregable | Resultado |
+|---|---|
+| `llms.txt` | Título y encabezados con "Domissi Hermanos"; sección **When to use this** (5 casos de uso con la consulta que resuelve cada uno, qué NO resuelve: precios, stock, compra online); subsección con el endpoint MCP, las 4 herramientas con sus límites y un `curl` verificado; links a about, empresa, contacto, privacy, sitemap, `llms-full.txt` y manifiesto MCP. Lo genera `tools/build_seo.py`. |
+| SEO de la home | `<title>` "Domissi Hermanos \| Aceros para construcción e industria en Casilda" (68 caracteres), description con marca + rubro + ciudad, h1 con marca/rubro/ciudad, canonical, Open Graph y Twitter ya estaban y se actualizaron los textos. |
+| JSON-LD | El nodo existente pasó a `["Organization","LocalBusiness","HardwareStore"]` y ganó `logo`, `image`, `contactPoint` (2: atención con email y teléfono, ventas con WhatsApp) y `sameAs`. `address` ya era `PostalAddress`. |
+| Páginas | `about.html` y `privacy.html`, mismo head/header/footer que `empresa.html`, enlazadas desde el footer de las 8 páginas y desde el sitemap. Alias `/about` y `/privacy` (rewrites). Solo se agregó la clase `.prose` a `styles.css` (texto corrido). |
+| Sitemap y robots | `sitemap.xml` con 26 URLs (7 páginas, incluidas about y privacy, y 19 categorías); `robots.txt` no necesitó cambios (ya apunta al sitemap). |
+| Coherencia con S2 | `Accept: text/markdown` en `/about(.html)` y `/privacy(.html)` (middleware → `route=page`, módulo `api/_lib/pages.js`); el 404 Markdown conserva llms.txt y sitemap y suma Quiénes somos y Privacidad. Se corrigió `pageMeta().title`, que devolvía vacío (el `<title>` es texto crudo). |
+
+### Evidencia local (`PORT=3000 npm run dev`, 2026-10-27)
+
+```
+$ curl -si -H 'Accept: text/markdown' localhost:3000/about
+HTTP/1.1 200 OK
+content-type: text/markdown; charset=utf-8
+link: <https://domissihermanos.com.ar/about.html>; rel="canonical"
+vary: Accept
+$ curl -si -H 'Accept: text/markdown' localhost:3000/privacy.html   (idéntico, canonical privacy.html)
+$ curl -si -H 'Accept: text/markdown' localhost:3000/nada
+HTTP/1.1 404 Not Found
+content-type: text/markdown; charset=utf-8     (links a /llms.txt, /sitemap.xml, /about.html, /privacy.html)
+$ curl -s -H 'Accept: text/markdown' localhost:3000/privacy | head
+# Política de privacidad — Domissi Hermanos
+> Qué datos personales trata Domissi Hermanos cuando le escribís por el formulario ...
+Versión en Markdown de http://localhost:3000/privacy.html (URL canónica: https://domissihermanos.com.ar/privacy.html).
+```
+
+Sin `Accept` Markdown, `/about` y `/privacy` devuelven HTML con `Vary: Accept` (200).
+
+JSON-LD (nodo Organization, extraído y parseado de `index.html`):
+
+```
+{"type":["Organization","LocalBusiness","HardwareStore"],"name":"Domissi Hermanos","url":"https://domissihermanos.com.ar/",
+ "logo":{"@type":"ImageObject","url":".../assets/brand/domissi-logo.svg"},"sameAs":["https://maps.app.goo.gl/EjJQR3NkxiCu3Ltn8"],
+ "contactPoint":[{"contactType":"customer service","telephone":"+54 3464 45-5600","email":"info@domissihermanos.com.ar",...},
+                 {"contactType":"sales","telephone":"+54 9 3464 609089",...}],
+ "address":{"@type":"PostalAddress","streetAddress":"Blvd. Colón 2499","postalCode":"S2170","addressLocality":"Casilda","addressRegion":"Santa Fe","addressCountry":"AR"}}
+```
+
+Verificación visual (gstack `/browse`, Chromium headless): home 1280 px con el hero idéntico (el prefijo del h1 es `.visually-hidden`); `about` y `privacy` a 1280 y 375 px sin scroll horizontal (`scrollWidth == clientWidth`); footer con la misma altura (463,6 px) en home, about y privacy; sin errores de consola.
+
+Checks: `npm test` **123/123** (24 nuevos en `tests/s3.test.mjs`), `npm run lint` y `npm run typecheck` limpios. No hay paso de build (sitio estático + función).
+
+### Decisiones tomadas en S3 (reversibles)
+
+- **h1 de la home**: para que lleve marca, rubro y ciudad sin tocar el diseño, se antepuso un `<span class="visually-hidden">` ("Domissi Hermanos, aceros para la construcción y la industria en Casilda, Santa Fe.") y el texto visible no cambió. Alternativa visible: cambiar el copy del hero (cambia el diseño; no lo hice).
+- **Organization fusionado** con el nodo LocalBusiness existente (un solo nodo con tres tipos) en vez de duplicar la entidad. `WebSite` quedó igual.
+- **`/about` vs `empresa.html`**: se superponen en contenido (historia, flota, acopio). `about` resume qué vende, a quién atiende y dónde está, y enlaza a `empresa`. Si preferís una sola, `/about` puede redirigir a `empresa.html`.
+- **AGENTS.md público: no se agregó**. `llms.txt` ya cubre ese uso y un archivo más es otra fuente que mantener sincronizada.
+- **`<link rel="alternate" type="text/markdown">`** agregado en home, about y privacy (parte del pendiente 13).
+- **`lastmod` del sitemap** es la fecha en que se corre `python tools/build_seo.py` (todas las URLs). Si querés fechas reales por página, hay que derivarlas de git.
+- **Privacidad**: describe lo que el sitio hace de verdad (el formulario abre el cliente de correo; no hay backend). No cita leyes ni plazos.
+
+### TODOs de datos que te faltan (no se inventó nada)
+
+1. **Razón social, CUIT y domicilio legal** del responsable del tratamiento (`privacy.html`, comentario `TODO(datos de la empresa)`).
+2. **Plazo de conservación** de las consultas por email/WhatsApp.
+3. **Revisión legal** de la política de privacidad y, si corresponde, la referencia a la Ley 25.326 y a la AAIP; se omitió a propósito.
+4. **Perfiles de redes sociales** para `sameAs` (hoy solo el link de Google Maps; el repo no tiene otros). Si existe ficha de Google Business o LinkedIn, agregarlos.
+5. **Logo en PNG** (≥112×112) si querés cumplir estrictamente con los requisitos de logo de Google; hoy es SVG.
+6. **Dominio canónico**: el certificado de `domissihermanos.com.ar` está vencido (pendiente 9). Mientras no se renueve, canonical, sitemap, llms.txt y og:url apuntan a un dominio que falla por HTTPS. Decidí si se renueva o si se usa `web-domissi.vercel.app`.
+7. **Teléfono del contactPoint de ventas**: usé el WhatsApp principal (+54 9 3464 609089) que ya figura en el sitio; confirmá si es "sales".
+8. **Pendientes de S2 que siguen abiertos**: `/.well-known/ai-catalog.json` (13), identidad MCP (12), CORS (10), rate limiting (11).
+9. **Validar en el preview de S4**: que el middleware con matcher de 5 rutas, los alias `/about` y `/privacy` y el `Vary` nuevo se comporten en Vercel igual que en el emulador (pendiente 8).
+
 ## Decisiones tomadas y pendientes
 
 Aprobadas (2026-10-26):
@@ -279,7 +350,7 @@ Pendientes de S2 (requieren tu decisión o el preview):
 |---|---|---|
 | S1 | Performance y depuración | **COMPLETADA** (con pendientes 3–7 arriba que necesitan tu OK) |
 | S2 | Protocolos de agentes: 404 Markdown, negociación Markdown, MCP | **COMPLETADA** en local (89 tests, lint y typecheck limpios; pendientes 8–14, el 8 se valida en el preview de S4) |
-| S3 | `llms.txt`, SEO/marca, schema Organization, páginas about/privacy | Pendiente |
+| S3 | `llms.txt`, SEO/marca, schema Organization, páginas about/privacy | **COMPLETADA** en local (123 tests, lint y typecheck limpios; TODOs de datos arriba) |
 | S4 | Code review, verificación en preview (`npx vercel deploy`) y entrega | Pendiente |
 
 Rama: `fix/perf-seo-agents`, sin push ni deploy. No hay remote.
