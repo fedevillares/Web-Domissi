@@ -60,5 +60,5 @@ test("contains only text: no markup, scripts or icons", () => {
 });
 
 test("points agents to the other machine-readable resources", () => {
-  for (const p of ["/llms.txt", "/llms-full.txt", "/sitemap.xml"]) assert.ok(md.includes(`(${ORIGIN}${p})`), p);
+  for (const p of ["/llms.txt", "/llms-full.txt", "/sitemap.xml", "/mcp", "/.well-known/mcp"]) assert.ok(md.includes(`(${ORIGIN}${p})`), p);
 });

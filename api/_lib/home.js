@@ -41,6 +41,7 @@ export function homeMarkdown(origin) {
       `- [llms.txt](${base}llms.txt): resumen del sitio.`,
       `- [llms-full.txt](${base}llms-full.txt): catálogo completo en texto.`,
       `- [Sitemap](${base}sitemap.xml)`,
+      `- [Servidor MCP](${base}mcp): Streamable HTTP, solo lectura (empresa, contacto, categorías y búsqueda de productos); manifiesto en [/.well-known/mcp](${base}.well-known/mcp).`,
     ].join("\n"),
   ];
   return blocks.join("\n\n") + "\n";
