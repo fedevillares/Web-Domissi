@@ -1,4 +1,14 @@
 {
+  "functions": {
+    "api/agents.js": { "includeFiles": "404.html" }
+  },
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
+      "destination": "/api/agents?route=not-found"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
