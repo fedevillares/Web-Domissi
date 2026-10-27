@@ -185,7 +185,7 @@
         <h3 class="display-3">Escribinos tu consulta</h3>
         <p>Completá tus datos y contanos qué materiales necesitás. Si podés, incluí medidas, cantidades y localidad de entrega para ayudarnos a responderte con mayor precisión.</p>
 
-        <form id="contactForm" novalidate>
+        <form id="contactForm" novalidate data-web3forms-key="">
           <div class="form-row">
             <div class="field">
               <label for="nombre">Nombre y apellido</label>
@@ -220,6 +220,8 @@
             <textarea id="mensaje" name="mensaje" required placeholder="Contanos qué material necesitás, cantidad aproximada y para cuándo lo necesitás."></textarea>
             <span class="error-msg">Contanos brevemente tu consulta.</span>
           </div>
+
+          <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true" style="display:none">
 
           <div class="form-actions">
             <button type="submit" class="btn btn-primary">Enviar consulta</button>
@@ -290,7 +292,7 @@
 <script defer src="js/search-core.js"></script>
 <script defer src="js/nav-search.js"></script>
 <script defer src="js/search-overlay.js"></script>
-<script defer src="js/contacto.js"></script>
+<script defer src="js/contacto.js?v=20261040"></script>
 <script defer src="js/nav.js"></script>
 <script defer src="js/vendor/lenis.min.js"></script>
 <script defer src="js/smooth-scroll.js"></script>

@@ -1091,6 +1091,7 @@ h1, h2, h3, h4, p { margin: 0; }
   margin-top: 1rem; padding: 0.9rem 1.1rem; border-radius: var(--radius-sm);
   font-size: 0.9rem; display: none;
 }
+#contactForm button[disabled] { opacity: 0.6; cursor: progress; }
 .form-status.is-success { display: block; background: #e6f4ea; color: #1f6d3c; }
 .form-status.is-error { display: block; background: #fbeaea; color: #a53328; }
 @media (max-width: 900px) {

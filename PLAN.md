@@ -300,7 +300,7 @@ Checks: `npm test` **123/123** (24 nuevos en `tests/s3.test.mjs`), `npm run lint
 - **AGENTS.md público: no se agregó**. `llms.txt` ya cubre ese uso y un archivo más es otra fuente que mantener sincronizada.
 - **`<link rel="alternate" type="text/markdown">`** agregado en home, about y privacy (parte del pendiente 13).
 - **`lastmod` del sitemap** es la fecha en que se corre `python tools/build_seo.py` (todas las URLs). Si querés fechas reales por página, hay que derivarlas de git.
-- **Privacidad**: describe lo que el sitio hace de verdad (el formulario abre el cliente de correo; no hay backend). No cita leyes ni plazos.
+- **Privacidad**: describe lo que el sitio hace de verdad (el formulario se envía por Web3Forms a info@domissihermanos.com.ar; sin backend propio). No cita leyes ni plazos.
 
 ### TODOs de datos que te faltan (no se inventó nada)
 
@@ -314,6 +314,20 @@ Checks: `npm test` **123/123** (24 nuevos en `tests/s3.test.mjs`), `npm run lint
 8. **Pendientes de S2 que siguen abiertos**: `/.well-known/ai-catalog.json` (13), identidad MCP (12), CORS (10), rate limiting (11).
 9. **Validar en el preview de S4**: que el middleware con matcher de 5 rutas, los alias `/about` y `/privacy` y el `Vary` nuevo se comporten en Vercel igual que en el emulador (pendiente 8).
 
+## Formulario de contacto con Web3Forms (previo a S4)
+
+- `contacto.html` + `js/contacto.js`: la consulta se envía por `fetch` (POST JSON) a `https://api.web3forms.com/submit` y llega a info@domissihermanos.com.ar. Incluye honeypot `botcheck`, estado de envío (botón deshabilitado, `aria-busy`), mensaje de éxito con reset del formulario y mensaje de error con salida por email/WhatsApp.
+- **Fallback**: mientras `data-web3forms-key` esté vacío, el formulario conserva el comportamiento anterior (abre el cliente de correo con el mensaje redactado), así el sitio no se rompe antes de tener la clave.
+- `privacy.html` actualizada: los datos pasan por Web3Forms (tercero) antes de llegar a Domissi.
+- Tests: `tests/contact-form.test.mjs` (envío con clave, error, fallback sin clave, honeypot, política). Total 130 tests, lint y typecheck limpios.
+
+### TODOs del formulario (a cargo del cliente)
+
+1. **Generar la access key** en web3forms.com con info@domissihermanos.com.ar (llega por email) y pegarla en `data-web3forms-key=""` de `#contactForm` en `contacto.html`. Es pública por diseño; no se inventó ninguna.
+2. **Restringir dominios permitidos** en el panel de Web3Forms (domissihermanos.com.ar y web-domissi.vercel.app).
+3. Opcional: activar captcha (hCaptcha/reCAPTCHA) en Web3Forms si llega spam; el honeypot ya filtra bots simples.
+4. Confirmar plazo de conservación y revisión legal del texto de privacidad (TODOs 2 y 3 de S3).
+5. En S4, probar un envío real en el preview con la clave cargada.
 ## Decisiones tomadas y pendientes
 
 Aprobadas (2026-10-26):

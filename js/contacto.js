@@ -1,15 +1,17 @@
 /* Domissi Hermanos — formulario de contacto
-   No existe backend/CRM en el sitio anterior (auditoría confirmada), por lo que este
-   formulario no promete un envío que no puede cumplir: valida los campos y abre el
-   cliente de correo del visitante con el mensaje ya redactado a info@domissihermanos.com.ar.
-   NOTA PARA CONFIGURACIÓN FUTURA: si se conecta un servicio de envío (Formspree, backend
-   propio, etc.), reemplazar la función handleSubmit para hacer un fetch real y mantener
-   la misma validación. */
+   Envía la consulta a info@domissihermanos.com.ar a través de Web3Forms (POST JSON a
+   api.web3forms.com). La access key es pública por diseño y se configura en el atributo
+   data-web3forms-key del <form> (contacto.html). Si falta, o si el envío falla, se cae
+   al cliente de correo del visitante (mailto:) con el mensaje ya redactado, así que la
+   consulta nunca se pierde. */
 (function () {
   "use strict";
   var form = document.getElementById("contactForm");
   if (!form) return;
   var status = document.getElementById("formStatus");
+  var submit = form.querySelector("[type=submit]");
+  var TO = "info@domissihermanos.com.ar";
+  var ENDPOINT = "https://api.web3forms.com/submit";
 
   var fields = {
     nombre: { el: document.getElementById("nombre"), required: true },
@@ -59,23 +61,73 @@
     }
 
     var interesLabel = fields.interes.el.options[fields.interes.el.selectedIndex].text;
+    var data = {
+      nombre: fields.nombre.el.value.trim(),
+      email: fields.email.el.value.trim(),
+      telefono: fields.telefono.el.value.trim() || "No indicado",
+      motivo: interesLabel,
+      mensaje: fields.mensaje.el.value.trim()
+    };
     var subject = "Consulta desde la web — " + interesLabel;
-    var body =
-      "Nombre: " + fields.nombre.el.value.trim() + "\n" +
-      "Email: " + fields.email.el.value.trim() + "\n" +
-      "Teléfono: " + (fields.telefono.el.value.trim() || "No indicado") + "\n" +
-      "Motivo de consulta: " + interesLabel + "\n\n" +
-      "Mensaje:\n" + fields.mensaje.el.value.trim();
+    var key = (form.getAttribute("data-web3forms-key") || "").trim();
 
-    var mailto =
-      "mailto:info@domissihermanos.com.ar?subject=" +
-      encodeURIComponent(subject) +
-      "&body=" +
-      encodeURIComponent(body);
+    function showMailto() {
+      var body =
+        "Nombre: " + data.nombre + "\n" +
+        "Email: " + data.email + "\n" +
+        "Teléfono: " + data.telefono + "\n" +
+        "Motivo de consulta: " + data.motivo + "\n\n" +
+        "Mensaje:\n" + data.mensaje;
+      window.location.href =
+        "mailto:" + TO + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+    }
 
-    window.location.href = mailto;
+    function done(ok, text) {
+      submit.disabled = false;
+      form.removeAttribute("aria-busy");
+      status.textContent = text;
+      status.classList.add(ok ? "is-success" : "is-error");
+    }
 
-    status.textContent = "Abrimos tu cliente de correo con el mensaje listo para enviar a info@domissihermanos.com.ar.";
-    status.classList.add("is-success");
+    // Honeypot: un bot completa el checkbox oculto; se descarta sin avisar.
+    if (form.elements.botcheck && form.elements.botcheck.checked) return;
+
+    if (!key) {
+      showMailto();
+      status.textContent = "Abrimos tu cliente de correo con el mensaje listo para enviar a " + TO + ".";
+      status.classList.add("is-success");
+      return;
+    }
+
+    submit.disabled = true;
+    form.setAttribute("aria-busy", "true");
+    status.textContent = "Enviando tu consulta…";
+
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        access_key: key,
+        subject: subject,
+        from_name: "Web Domissi Hermanos",
+        name: data.nombre,
+        email: data.email,
+        telefono: data.telefono,
+        motivo: data.motivo,
+        message: data.mensaje,
+        botcheck: ""
+      })
+    })
+      .then(function (res) {
+        return res.json().then(function (json) { return { ok: res.ok && json.success, json: json }; });
+      })
+      .then(function (r) {
+        if (!r.ok) throw new Error((r.json && r.json.message) || "send failed");
+        form.reset();
+        done(true, "¡Gracias! Recibimos tu consulta y te respondemos a la brevedad al email que dejaste.");
+      })
+      .catch(function () {
+        done(false, "No pudimos enviar la consulta. Probá de nuevo, escribinos a " + TO + " o hablá con un asesor por WhatsApp.");
+      });
   });
 })();
