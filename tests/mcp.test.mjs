@@ -308,3 +308,53 @@ test("the Server Card only allows read methods", async () => {
   const res = await fetch(server.url + "/.well-known/mcp", { method: "POST", body: "{}" });
   assert.equal(res.status, 405);
 });
+
+// ---------- Hardening (S4 review)
+
+test("a non-string tool name is Invalid params, not a crash", async () => {
+  for (const name of [{ toString: 1 }, 42, null, ["search_products"]]) {
+    const res = await post({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name, arguments: {} } }, { "MCP-Protocol-Version": "2025-06-18" });
+    assert.equal(res.status, 200, JSON.stringify(name));
+    assert.equal((await json(res)).error.code, -32602);
+  }
+});
+
+test("inherited property names are unknown tool arguments", async () => {
+  for (const key of ["constructor", "toString", "hasOwnProperty"]) {
+    const { result } = await json(await modern("tools/call", { name: "search_products", arguments: { query: "caño", [key]: 1 } }));
+    assert.equal(result.isError, true, key);
+  }
+});
+
+test("notifications are checked against the protocol version header", async () => {
+  const res = await post({ jsonrpc: "2.0", method: "notifications/initialized" }, { "MCP-Protocol-Version": "1900-01-01" });
+  assert.equal(res.status, 400);
+  assert.equal((await json(res)).error.code, -32022);
+});
+
+test("JSON-RPC responses sent by the client are accepted with 202", async () => {
+  for (const body of [{ jsonrpc: "2.0", id: 1, result: {} }, { jsonrpc: "2.0", id: "x", error: { code: -1, message: "no" } }]) {
+    const res = await post(body);
+    assert.equal(res.status, 202, JSON.stringify(body));
+    assert.equal((await res.text()).length, 0);
+  }
+});
+
+test("an oversized chunked body (no Content-Length) is rejected with 413", async () => {
+  const big = new TextEncoder().encode(JSON.stringify({ jsonrpc: "2.0", id: 1, method: "ping", params: { pad: "x".repeat(200_000) } }));
+  const body = new ReadableStream({
+    start(c) { for (let i = 0; i < big.length; i += 16_384) c.enqueue(big.subarray(i, i + 16_384)); c.close(); },
+  });
+  const init = /** @type {RequestInit} */ ({ method: "POST", headers: BASE_HEADERS, body, duplex: "half" });
+  const res = await fetch(server.url + "/mcp", init);
+  assert.equal(res.status, 413);
+});
+
+test("the Server Card has one ETag per media type and understands If-None-Match lists", async () => {
+  const card = "application/mcp-server-card+json";
+  const a = (await fetch(server.url + "/.well-known/mcp")).headers.get("etag");
+  const b = (await fetch(server.url + "/.well-known/mcp", { headers: { Accept: card } })).headers.get("etag");
+  assert.ok(a && b && a !== b);
+  const res = await fetch(server.url + "/.well-known/mcp", { headers: { Accept: card, "If-None-Match": `"other", W/${b}` } });
+  assert.equal(res.status, 304);
+});

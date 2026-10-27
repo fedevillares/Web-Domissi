@@ -32,9 +32,11 @@ export function serverCardResponse(request) {
     return new Response(null, { status: 405, headers: { ...cors, Allow: "GET, HEAD, OPTIONS" } });
   }
   const body = JSON.stringify(serverCard(new URL(request.url).origin), null, 2);
-  const etag = `"${createHash("sha256").update(body).digest("base64url").slice(0, 27)}"`;
   const type = negotiate(request.headers.get("accept"), ["application/json", CARD_TYPE]) ?? "application/json";
+  // One ETag per representation: the body is the same, the media type is not.
+  const etag = `"${createHash("sha256").update(type + "\n" + body).digest("base64url").slice(0, 27)}"`;
   const headers = { ...cors, ETag: etag, "Cache-Control": "public, max-age=3600", Vary: "Accept" };
-  if (request.headers.get("if-none-match") === etag) return new Response(null, { status: 304, headers });
+  const ifNoneMatch = (request.headers.get("if-none-match") ?? "").split(",").map((t) => t.trim().replace(/^W\//, ""));
+  if (ifNoneMatch.includes(etag) || ifNoneMatch.includes("*")) return new Response(null, { status: 304, headers });
   return new Response(request.method === "HEAD" ? null : body, { headers: { ...headers, "Content-Type": `${type}; charset=utf-8` } });
 }

@@ -196,10 +196,10 @@ export function toolDefinitions() {
  * @returns {string | null} error message, or null when valid
  */
 export function validateArgs(schema, args) {
-  for (const key of Object.keys(args)) if (!(key in schema.properties)) return `Parámetro desconocido: ${key}.`;
-  for (const key of schema.required ?? []) if (!(key in args)) return `Falta el parámetro obligatorio: ${key}.`;
+  for (const key of Object.keys(args)) if (!Object.hasOwn(schema.properties, key)) return `Parámetro desconocido: ${key}.`;
+  for (const key of schema.required ?? []) if (!Object.hasOwn(args, key)) return `Falta el parámetro obligatorio: ${key}.`;
   for (const [key, s] of Object.entries(schema.properties)) {
-    if (!(key in args)) continue;
+    if (!Object.hasOwn(args, key)) continue;
     const v = args[key];
     if (s.type === "string") {
       if (typeof v !== "string") return `${key} debe ser un texto.`;

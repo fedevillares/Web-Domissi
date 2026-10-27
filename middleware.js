@@ -2,7 +2,7 @@
 // static trust pages (about, privacy). Runs before the CDN cache; only requests that
 // prefer text/markdown (by q-value) are rewritten to the function, everything else
 // continues to the HTML file. The Vary: Accept header for both variants is set in vercel.json.
-import { next, rewrite } from "@vercel/functions";
+import { next, rewrite } from "@vercel/functions/middleware";
 import { negotiate } from "./api/_lib/negotiate.js";
 
 // The matcher must be a literal (Vercel reads it statically); keep it in sync with

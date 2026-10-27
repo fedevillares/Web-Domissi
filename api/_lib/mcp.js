@@ -32,7 +32,9 @@ const ALLOW_HEADERS = "Content-Type, Accept, MCP-Protocol-Version, Mcp-Method, M
 function allowedOrigins(request) {
   const set = new Set([new URL(request.url).origin]);
   try { set.add(new URL(pageMeta("index.html").canonical).origin); } catch { /* no canonical */ }
-  for (const o of (process.env.MCP_ALLOWED_ORIGINS ?? "").split(",")) if (o.trim()) set.add(o.trim());
+  for (const o of (process.env.MCP_ALLOWED_ORIGINS ?? "").split(",")) {
+    try { if (o.trim()) set.add(new URL(o.trim()).origin); } catch { /* not a URL: ignore */ }
+  }
   return set;
 }
 
@@ -53,6 +55,27 @@ function reply(status, body, origin, extra = {}) {
 const rpcError = (id, code, message, data) =>
   ({ jsonrpc: "2.0", ...(id != null ? { id } : {}), error: { code, message, ...(data !== undefined ? { data } : {}) } });
 
+/**
+ * Reads the body as UTF-8, stopping as soon as it exceeds MAX_BODY_BYTES (chunked
+ * requests carry no Content-Length to check up front).
+ * @param {Request} request @returns {Promise<string | null>} null when too large
+ */
+async function readBody(request) {
+  if (!request.body) return "";
+  const reader = request.body.getReader();
+  /** @type {Uint8Array[]} */
+  const chunks = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > MAX_BODY_BYTES) { await reader.cancel(); return null; }
+    chunks.push(value);
+  }
+  return Buffer.concat(chunks).toString("utf8");
+}
+
 /** Decodes the `=?base64?…?=` sentinel used by Mcp-Name / Mcp-Param-* headers. @param {string | null} v */
 function decodeHeader(v) {
   const m = v && /^=\?base64\?([A-Za-z0-9+/=]*)\?=$/.exec(v);
@@ -65,6 +88,7 @@ function decodeHeader(v) {
  * @returns {{ error: [number, string] } | { result: Record<string, unknown> }}
  */
 function callTool(params, base) {
+  if (typeof params.name !== "string") return { error: [-32602, "Invalid params: name must be a string"] };
   const tool = TOOLS.find((t) => t.name === params.name);
   if (!tool) return { error: [-32602, `Unknown tool: ${String(params.name).slice(0, 100)}`] };
   const args = params.arguments ?? {};
@@ -108,8 +132,8 @@ export async function mcpResponse(request) {
   if (Number(request.headers.get("content-length") ?? 0) > MAX_BODY_BYTES) {
     return reply(413, rpcError(null, -32600, "Request body too large"), origin);
   }
-  const raw = await request.text();
-  if (Buffer.byteLength(raw) > MAX_BODY_BYTES) return reply(413, rpcError(null, -32600, "Request body too large"), origin);
+  const raw = await readBody(request);
+  if (raw == null) return reply(413, rpcError(null, -32600, "Request body too large"), origin);
 
   /** @type {any} */
   let msg;
@@ -117,6 +141,14 @@ export async function mcpResponse(request) {
   if (Array.isArray(msg)) return reply(400, rpcError(null, -32600, "Invalid Request: batches are not supported"), origin);
   const hasId = msg !== null && typeof msg === "object" && "id" in msg;
   const id = hasId && (typeof msg.id === "string" || typeof msg.id === "number") ? msg.id : null;
+  const version = request.headers.get("mcp-protocol-version");
+  if (version != null && !SUPPORTED_VERSIONS.includes(version)) {
+    return reply(400, rpcError(id, -32022, "Unsupported protocol version", { supported: SUPPORTED_VERSIONS, requested: version }), origin);
+  }
+  // A JSON-RPC response sent by the client (we never send requests, so there is nothing to match): accept it.
+  if (msg && typeof msg === "object" && msg.jsonrpc === "2.0" && id != null && !("method" in msg) && ("result" in msg || "error" in msg)) {
+    return reply(202, undefined, origin);
+  }
   if (!msg || typeof msg !== "object" || msg.jsonrpc !== "2.0" || typeof msg.method !== "string" || (hasId && id == null)) {
     return reply(400, rpcError(id, -32600, "Invalid Request"), origin);
   }
@@ -126,11 +158,6 @@ export async function mcpResponse(request) {
   const params = msg.params && typeof msg.params === "object" && !Array.isArray(msg.params) ? msg.params : {};
   const meta = params._meta && typeof params._meta === "object" ? params._meta : {};
   const base = new URL(request.url).origin + "/";
-  const version = request.headers.get("mcp-protocol-version");
-
-  if (version != null && !SUPPORTED_VERSIONS.includes(version)) {
-    return reply(400, rpcError(id, -32022, "Unsupported protocol version", { supported: SUPPORTED_VERSIONS, requested: version }), origin);
-  }
 
   // ---- Legacy era: initialize handshake (and requests that carry no modern _meta).
   const modern = method !== "initialize" && (version === MODERN_VERSION || (version == null && meta[META_VERSION] != null));
