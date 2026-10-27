@@ -1,6 +1,7 @@
 // Agent protocols over HTTP, through the local Vercel routing emulator. Run: npm test
 import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { startDevServer } from "../tools/dev-server.mjs";
 
 /** @type {{ url: string, close: () => Promise<void> }} */
@@ -10,6 +11,52 @@ after(() => server.close());
 
 const get = (/** @type {string} */ path, /** @type {Record<string, string>} */ headers = {}) =>
   fetch(server.url + path, { headers, redirect: "manual" });
+
+// ---------- Home: Markdown content negotiation
+
+test("home with Accept: text/markdown returns Markdown with Vary: Accept", async () => {
+  const res = await get("/", { Accept: "text/markdown" });
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get("content-type"), "text/markdown; charset=utf-8");
+  assert.match(res.headers.get("vary") ?? "", /\bAccept\b/);
+  const body = await res.text();
+  assert.match(body, /^# Domissi Hermanos\n/);
+  assert.ok(body.length > 1000);
+  assert.ok(body.includes(`(${server.url}/productos.html)`), "links use the request origin");
+});
+
+test("home with Accept: text/html returns the HTML page with Vary: Accept", async () => {
+  const res = await get("/", { Accept: "text/html" });
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get("content-type") ?? "", /^text\/html/);
+  assert.match(res.headers.get("vary") ?? "", /\bAccept\b/);
+  assert.equal(await res.text(), readFileSync("index.html", "utf8"), "HTML is served unchanged");
+});
+
+test("home without Accept or with */* stays HTML", async () => {
+  for (const accept of [undefined, "*/*"]) {
+    const res = await get("/", accept ? { Accept: accept } : {});
+    assert.match(res.headers.get("content-type") ?? "", /^text\/html/, String(accept));
+    assert.match(res.headers.get("vary") ?? "", /\bAccept\b/);
+  }
+});
+
+test("home negotiation respects q-values", async () => {
+  /** @type {[string, RegExp][]} */
+  const cases = [
+    ["text/markdown;q=0.5, text/html", /^text\/html/],
+    ["text/html;q=0.5, text/markdown", /^text\/markdown/],
+    ["text/markdown, text/html;q=0.9, */*;q=0.8", /^text\/markdown/],
+    ["text/html, text/markdown", /^text\/html/],
+    ["text/markdown;q=0", /^text\/html/],
+    ["text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", /^text\/html/],
+  ];
+  for (const [accept, type] of cases) {
+    const res = await get("/", { Accept: accept });
+    assert.equal(res.status, 200, accept);
+    assert.match(res.headers.get("content-type") ?? "", type, accept);
+  }
+});
 
 // ---------- 404
 

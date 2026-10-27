@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/agents.js": { "includeFiles": "404.html" }
+    "api/agents.js": { "includeFiles": "{404.html,index.html,js/catalog-data.js}" }
   },
   "rewrites": [
     {
@@ -10,6 +10,10 @@
     }
   ],
   "headers": [
+    {
+      "source": "/",
+      "headers": [{ "key": "Vary", "value": "Accept" }]
+    },
     {
       "source": "/(.*)",
       "headers": [
