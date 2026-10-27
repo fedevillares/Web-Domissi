@@ -1,4 +1,4 @@
-// Static-site checks. Run: node --test tests/
+// Static-site checks. Run: npm test
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
@@ -7,9 +7,9 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const pages = readdirSync(root).filter((f) => f.endsWith(".html"));
-const read = (f) => readFileSync(join(root, f), "utf8");
+const read = (/** @type {string} */ f) => readFileSync(join(root, f), "utf8");
 
-const localRefs = (html) =>
+const localRefs = (/** @type {string} */ html) =>
   [...html.matchAll(/\b(?:src|href|srcset|data-src|data-srcset|data-lazy-src)="([^"]+)"/g)]
     .flatMap((m) => (/srcset/.test(m[0]) ? m[1].split(",") : [m[1]]).map((s) => s.trim().split(/\s+/)[0]))
     .filter((u) => u && !/^(https?:|mailto:|tel:|#|data:|\/\/)/.test(u))
@@ -59,10 +59,11 @@ test("index.html: hero slide 1 image is eager, high priority and sized", () => {
 });
 
 test("vercel.json: security headers and cache policy", () => {
+  /** @type {{ headers: { source: string, headers: { key: string, value: string }[] }[] }} */
   const cfg = JSON.parse(read("vercel.json"));
-  const all = cfg.headers.find((h) => h.source === "/(.*)").headers.map((h) => h.key);
+  const all = (cfg.headers.find((h) => h.source === "/(.*)")?.headers ?? []).map((h) => h.key);
   for (const k of ["X-Content-Type-Options", "Referrer-Policy", "Permissions-Policy"]) assert.ok(all.includes(k), k);
-  const cache = (src) => cfg.headers.find((h) => h.source === src)?.headers.find((h) => h.key === "Cache-Control")?.value;
+  const cache = (/** @type {string} */ src) => cfg.headers.find((h) => h.source === src)?.headers.find((h) => h.key === "Cache-Control")?.value ?? "";
   assert.match(cache("/assets/fonts/(.*)"), /immutable/);
   assert.match(cache("/assets/((?!fonts/).*)"), /max-age=3600, stale-while-revalidate=86400/);
 });
