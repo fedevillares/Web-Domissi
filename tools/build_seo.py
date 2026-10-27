@@ -83,7 +83,7 @@ L = ["# Domissi Hermanos", "",
      "## Categorías del catálogo", ""]
 for c in cats:
     L.append("- [%s](%s/productos.html?c=%s): %d productos." % (c["label"], SITE, c["id"], c["count"]))
-L += ["", "## Opcional", "",
+L += ["", "## Optional", "",
       "- [Catálogo completo en texto](%s/llms-full.txt): todas las categorías, subcategorías y productos con sus medidas." % SITE,
       "- [Sitemap](%s/sitemap.xml)" % SITE,
       "- [Manifiesto del servidor MCP](%s/.well-known/mcp)" % SITE, "",

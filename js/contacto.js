@@ -1,9 +1,9 @@
 /* Domissi Hermanos — formulario de contacto
    Envía la consulta a info@domissihermanos.com.ar a través de Web3Forms (POST JSON a
    api.web3forms.com). La access key es pública por diseño y se configura en el atributo
-   data-web3forms-key del <form> (contacto.html). Si falta, o si el envío falla, se cae
-   al cliente de correo del visitante (mailto:) con el mensaje ya redactado, así que la
-   consulta nunca se pierde. */
+   data-web3forms-key del <form> (contacto.html). Si falta, se abre el cliente de correo
+   del visitante (mailto:) con el mensaje ya redactado; si el envío falla, el mensaje de
+   error ofrece ese mismo mailto, así la consulta escrita no se pierde. */
 (function () {
   "use strict";
   var form = document.getElementById("contactForm");
@@ -71,20 +71,20 @@
     var subject = "Consulta desde la web — " + interesLabel;
     var key = (form.getAttribute("data-web3forms-key") || "").trim();
 
-    function showMailto() {
+    function mailtoHref() {
       var body =
         "Nombre: " + data.nombre + "\n" +
         "Email: " + data.email + "\n" +
         "Teléfono: " + data.telefono + "\n" +
         "Motivo de consulta: " + data.motivo + "\n\n" +
         "Mensaje:\n" + data.mensaje;
-      window.location.href =
-        "mailto:" + TO + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+      return "mailto:" + TO + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
     }
 
     function done(ok, text) {
       submit.disabled = false;
       form.removeAttribute("aria-busy");
+      status.className = "form-status";
       status.textContent = text;
       status.classList.add(ok ? "is-success" : "is-error");
     }
@@ -93,7 +93,7 @@
     if (form.elements.botcheck && form.elements.botcheck.checked) return;
 
     if (!key) {
-      showMailto();
+      window.location.href = mailtoHref();
       status.textContent = "Abrimos tu cliente de correo con el mensaje listo para enviar a " + TO + ".";
       status.classList.add("is-success");
       return;
@@ -102,6 +102,7 @@
     submit.disabled = true;
     form.setAttribute("aria-busy", "true");
     status.textContent = "Enviando tu consulta…";
+    status.classList.add("is-pending");
 
     fetch(ENDPOINT, {
       method: "POST",
@@ -127,7 +128,12 @@
         done(true, "¡Gracias! Recibimos tu consulta y te respondemos a la brevedad al email que dejaste.");
       })
       .catch(function () {
-        done(false, "No pudimos enviar la consulta. Probá de nuevo, escribinos a " + TO + " o hablá con un asesor por WhatsApp.");
+        done(false, "No pudimos enviar la consulta. Probá de nuevo, hablá con un asesor por WhatsApp o ");
+        var link = document.createElement("a");
+        link.href = mailtoHref();
+        link.textContent = "envianos este mensaje por email a " + TO;
+        status.appendChild(link);
+        status.appendChild(document.createTextNode("."));
       });
   });
 })();

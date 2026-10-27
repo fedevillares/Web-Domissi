@@ -58,7 +58,7 @@ curl -X POST https://domissihermanos.com.ar/mcp -H 'Content-Type: application/js
 - [Complementos de herrería](https://domissihermanos.com.ar/productos.html?c=herreria): 68 productos.
 - [Ferretería](https://domissihermanos.com.ar/productos.html?c=ferreteria): 346 productos.
 
-## Opcional
+## Optional
 
 - [Catálogo completo en texto](https://domissihermanos.com.ar/llms-full.txt): todas las categorías, subcategorías y productos con sus medidas.
 - [Sitemap](https://domissihermanos.com.ar/sitemap.xml)

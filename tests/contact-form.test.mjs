@@ -36,7 +36,9 @@ async function submitWith(/** @type {string} */ key, /** @type {{ ok: boolean, b
     addEventListener() {}, closest: () => ({ classList: { toggle() {} } }), parentNode: null, options: [{ text: "Construcción" }], selectedIndex: 0,
   });
   for (const [id, v] of [["nombre", "Ana Pérez"], ["email", "ana@example.com"], ["telefono", ""], ["interes", "construccion"], ["mensaje", "Necesito cotizar hierros"]]) mk(id, v);
-  const status = { textContent: "", className: "", classList: { add(/** @type {string} */ c) { status.className += " " + c; } } };
+  /** @type {any[]} */
+  const children = [];
+  const status = { textContent: "", className: "", children, appendChild: (/** @type {any} */ n) => children.push(n), classList: { add(/** @type {string} */ c) { status.className += " " + c; } } };
   /** @type {Function} */
   let onSubmit = () => {};
   const form = {
@@ -49,7 +51,11 @@ async function submitWith(/** @type {string} */ key, /** @type {{ ok: boolean, b
   /** @type {any[]} */
   const calls = [];
   const location = { href: "" };
-  const document = { getElementById: (/** @type {string} */ id) => (id === "contactForm" ? form : id === "formStatus" ? status : els[id] ?? null) };
+  const document = {
+    getElementById: (/** @type {string} */ id) => (id === "contactForm" ? form : id === "formStatus" ? status : els[id] ?? null),
+    createElement: (/** @type {string} */ tag) => ({ tag, href: "", textContent: "" }),
+    createTextNode: (/** @type {string} */ text) => ({ text }),
+  };
   const fetch = async (/** @type {string} */ url, /** @type {any} */ init) => {
     calls.push({ url, init });
     if (!reply) throw new Error("network");
@@ -75,10 +81,13 @@ test("with a key: sends the consulta to Web3Forms and confirms", async () => {
   assert.match(r.status.className, /is-success/);
 });
 
-test("with a key: a failed send shows an error and does not open the mail client", async () => {
+test("with a key: a failed send shows an error with a pre-filled mailto link and does not open the mail client", async () => {
   const r = await submitWith("KEY123", null);
   assert.match(r.status.className, /is-error/);
-  assert.match(r.status.textContent, /info@domissihermanos\.com\.ar/);
+  const link = r.status.children.find((/** @type {any} */ n) => n.tag === "a");
+  assert.match(link.href, /^mailto:info@domissihermanos\.com\.ar\?subject=.*&body=.*cotizar%20hierros/);
+  assert.match(link.textContent, /info@domissihermanos\.com\.ar/);
+  assert.equal(r.location.href, "");
   assert.ok(!r.form.wasReset);
 });
 

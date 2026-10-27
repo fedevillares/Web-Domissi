@@ -129,7 +129,8 @@
         entries.forEach(function (e) {
           if (!e.isIntersecting) return;
           lazyIo.unobserve(e.target);
-          loadLazy(e.target.querySelector("img[data-lazy-src]"));
+          var img = e.target.querySelector("img[data-lazy-src]");
+          if (img) loadLazy(img);
         });
       }, { rootMargin: "300px 0px" });
       lazyImgs.forEach(function (img) { lazyIo.observe(img.closest(".offer-panel, .cta-cell") || img.parentNode); });

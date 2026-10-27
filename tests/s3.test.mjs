@@ -95,7 +95,9 @@ test("Organization JSON-LD parses and has the required fields", () => {
   assert.equal(org.name, "Domissi Hermanos");
   assert.match(org.url, /^https:\/\//);
   assert.match(org.logo?.url ?? org.logo, /^https:\/\/.+\.(svg|png)$/);
-  assert.ok(Array.isArray(org.sameAs) && org.sameAs.length >= 1 && org.sameAs.every((/** @type {string} */ u) => /^https:\/\//.test(u)));
+  assert.match(org.hasMap, /^https:\/\//);
+  // sameAs is for profile pages (social, Google Business); none are known yet, and a map link is not one.
+  assert.ok(org.sameAs === undefined || (Array.isArray(org.sameAs) && org.sameAs.every((/** @type {string} */ u) => /^https:\/\//.test(u))));
   assert.ok(org.contactPoint.length >= 1);
   assert.ok(org.contactPoint.every((/** @type {{ contactType?: string }} */ c) => c.contactType));
   assert.ok(org.contactPoint.some((/** @type {{ email?: string }} */ c) => c.email === "info@domissihermanos.com.ar"));
