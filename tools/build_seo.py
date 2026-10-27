@@ -41,7 +41,8 @@ w("robots.txt", robots)
 
 # ---------- sitemap.xml
 urls = [("/", "1.0", "weekly"), ("/productos.html", "0.9", "weekly"), ("/buscar.html", "0.5", "monthly"),
-        ("/empresa.html", "0.6", "yearly"), ("/contacto.html", "0.7", "yearly")]
+        ("/empresa.html", "0.6", "yearly"), ("/about.html", "0.6", "yearly"), ("/contacto.html", "0.7", "yearly"),
+        ("/privacy.html", "0.3", "yearly")]
 urls += [("/productos.html?c=" + c["id"], "0.8", "weekly") for c in cats]
 x = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
 for loc, pr, cf in urls:
@@ -51,31 +52,49 @@ x.append("</urlset>\n")
 w("sitemap.xml", "\n".join(x))
 
 # ---------- llms.txt
+MCP_CALL = ("curl -X POST %s/mcp -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' "
+            "-d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/call\",\"params\":{\"name\":\"search_products\","
+            "\"arguments\":{\"query\":\"planchuela 1 1/4\",\"limit\":5}}}'" % SITE)
 L = ["# Domissi Hermanos", "",
-     "> Distribuidora de aceros para la construcción y la industria, con 50 años de trayectoria en Casilda, sur de Santa Fe, Argentina. "
+     "> Domissi Hermanos es una distribuidora de aceros para la construcción y la industria, con 50 años de trayectoria en Casilda, sur de Santa Fe, Argentina. "
      "Vende hierros, mallas, perfiles, chapas, caños, aislantes y ferretería, con flota propia de entrega en Santa Fe y Córdoba. "
      "Catálogo actual: %d productos en %d categorías." % (total, len(cats)), "",
-     "Atiende a obra (constructoras y clientes finales), industria (PYMES metalúrgicas) y mayoristas (corralones, herrerías, ferreterías, cooperativas).", "",
-     "## Páginas principales", "",
+     "Domissi Hermanos atiende a obra (constructoras y clientes finales), industria (PYMES metalúrgicas) y mayoristas (corralones, herrerías, ferreterías, cooperativas).", "",
+     "## When to use this: Domissi Hermanos", "",
+     "Consultá esta fuente cuando la pregunta sea sobre Domissi Hermanos o sobre comprar aceros en el sur de Santa Fe y Córdoba:", "",
+     "- Saber si Domissi Hermanos vende un material o una medida, con su código, largo y peso: buscar en el catálogo (`%s/buscar.html?q=planchuela 1 1/4`), en [llms-full.txt](%s/llms-full.txt) o con la herramienta MCP `search_products`." % (SITE, SITE),
+     "- Ver qué categorías tiene el catálogo y cuántos productos hay en cada una: sección \"Categorías del catálogo\" de este archivo o herramienta MCP `list_product_categories`.",
+     "- Cotizar o comprar: los precios no se publican; hay que escribir por WhatsApp, llamar, enviar un email o completar el [formulario de contacto](%s/contacto.html). Dirección, horarios y teléfonos están en \"Datos de contacto\" o en la herramienta MCP `get_contact_info`." % SITE,
+     "- Saber a quién atiende Domissi Hermanos, en qué zona reparte, si tiene flota propia, acopio y cortes a medida: [Quiénes somos](%s/about.html), [Empresa](%s/empresa.html) o la herramienta MCP `get_company_info`." % (SITE, SITE),
+     "- Averiguar qué hace Domissi Hermanos con los datos de una consulta enviada por el formulario (nombre, email, teléfono, mensaje): [Política de privacidad](%s/privacy.html)." % SITE, "",
+     "No sirve para: conocer precios ni disponibilidad de stock (no se publican), comprar online ni seguir un pedido (el sitio no tiene carrito ni seguimiento).", "",
+     "### Cómo llamar al servidor MCP de Domissi Hermanos", "",
+     "- Endpoint: `%s/mcp` (Streamable HTTP, POST con JSON-RPC, solo lectura, sin autenticación). Manifiesto: `%s/.well-known/mcp`." % (SITE, SITE),
+     "- Herramientas: `get_company_info`, `get_contact_info`, `list_product_categories` y `search_products` (`query` de 1 a 100 caracteres, `category` opcional, `limit` de 1 a 50).",
+     "- Ejemplo:", "", "```", MCP_CALL, "```", "",
+     "## Páginas principales de Domissi Hermanos", "",
      "- [Inicio](%s/): presentación, propuesta de valor y accesos rápidos." % SITE,
      "- [Catálogo de productos](%s/productos.html): %d productos con código, medidas, largo y peso." % (SITE, total),
      "- [Buscador](%s/buscar.html): búsqueda por texto, p. ej. `buscar.html?q=planchuela 1 1/4`." % SITE,
+     "- [Quiénes somos](%s/about.html): qué vende Domissi Hermanos, a quién atiende, cómo entrega y dónde está." % SITE,
      "- [Empresa](%s/empresa.html): historia, flota propia y valores." % SITE,
-     "- [Contacto](%s/contacto.html): formulario de presupuesto, teléfono, email y dirección." % SITE, "",
+     "- [Contacto](%s/contacto.html): formulario de presupuesto, teléfono, email y dirección." % SITE,
+     "- [Política de privacidad](%s/privacy.html): tratamiento de los datos de consultas y servicios de terceros." % SITE, "",
      "## Categorías del catálogo", ""]
 for c in cats:
     L.append("- [%s](%s/productos.html?c=%s): %d productos." % (c["label"], SITE, c["id"], c["count"]))
 L += ["", "## Opcional", "",
       "- [Catálogo completo en texto](%s/llms-full.txt): todas las categorías, subcategorías y productos con sus medidas." % SITE,
-      "- [Sitemap](%s/sitemap.xml)" % SITE, "",
-      "## Datos de contacto", "",
+      "- [Sitemap](%s/sitemap.xml)" % SITE,
+      "- [Manifiesto del servidor MCP](%s/.well-known/mcp)" % SITE, "",
+      "## Datos de contacto de Domissi Hermanos", "",
       "- Teléfono: +54 3464 45-5600",
       "- WhatsApp: https://wa.me/5493464609089",
       "- Email: info@domissihermanos.com.ar",
       "- Dirección: Blvd. Colón 2499, S2170 Casilda, Santa Fe, Argentina",
       "- Horario: lunes a viernes 8:00–12:00 y 14:30–18:30; sábados 8:00–11:00 (hora de Argentina)", "",
       "## Notas para agentes", "",
-      "- Los precios no se publican: para cotizar, derivar al WhatsApp o al formulario de contacto.",
+      "- Las páginas principales también se piden en Markdown con `Accept: text/markdown` (inicio, Quiénes somos y Política de privacidad).",
       "- La interfaz del catálogo se renderiza con JavaScript; para leer el catálogo sin ejecutar JS usar `llms-full.txt`.",
       "- Parámetros de URL del catálogo: `productos.html?c=<categoría>&s=<subcategoría>&g=<agrupador>&a=<ancho mm>&e=<espesor mm>&q=<texto>`.",
       "- Los filtros de ancho y espesor existen solo donde hay datos: Ángulos/planchuelas/perfiles T/U (ancho y espesor) y Caños (espesor).",

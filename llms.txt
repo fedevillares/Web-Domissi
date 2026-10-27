@@ -1,16 +1,40 @@
 # Domissi Hermanos
 
-> Distribuidora de aceros para la construcción y la industria, con 50 años de trayectoria en Casilda, sur de Santa Fe, Argentina. Vende hierros, mallas, perfiles, chapas, caños, aislantes y ferretería, con flota propia de entrega en Santa Fe y Córdoba. Catálogo actual: 2680 productos en 19 categorías.
+> Domissi Hermanos es una distribuidora de aceros para la construcción y la industria, con 50 años de trayectoria en Casilda, sur de Santa Fe, Argentina. Vende hierros, mallas, perfiles, chapas, caños, aislantes y ferretería, con flota propia de entrega en Santa Fe y Córdoba. Catálogo actual: 2680 productos en 19 categorías.
 
-Atiende a obra (constructoras y clientes finales), industria (PYMES metalúrgicas) y mayoristas (corralones, herrerías, ferreterías, cooperativas).
+Domissi Hermanos atiende a obra (constructoras y clientes finales), industria (PYMES metalúrgicas) y mayoristas (corralones, herrerías, ferreterías, cooperativas).
 
-## Páginas principales
+## When to use this: Domissi Hermanos
+
+Consultá esta fuente cuando la pregunta sea sobre Domissi Hermanos o sobre comprar aceros en el sur de Santa Fe y Córdoba:
+
+- Saber si Domissi Hermanos vende un material o una medida, con su código, largo y peso: buscar en el catálogo (`https://domissihermanos.com.ar/buscar.html?q=planchuela 1 1/4`), en [llms-full.txt](https://domissihermanos.com.ar/llms-full.txt) o con la herramienta MCP `search_products`.
+- Ver qué categorías tiene el catálogo y cuántos productos hay en cada una: sección "Categorías del catálogo" de este archivo o herramienta MCP `list_product_categories`.
+- Cotizar o comprar: los precios no se publican; hay que escribir por WhatsApp, llamar, enviar un email o completar el [formulario de contacto](https://domissihermanos.com.ar/contacto.html). Dirección, horarios y teléfonos están en "Datos de contacto" o en la herramienta MCP `get_contact_info`.
+- Saber a quién atiende Domissi Hermanos, en qué zona reparte, si tiene flota propia, acopio y cortes a medida: [Quiénes somos](https://domissihermanos.com.ar/about.html), [Empresa](https://domissihermanos.com.ar/empresa.html) o la herramienta MCP `get_company_info`.
+- Averiguar qué hace Domissi Hermanos con los datos de una consulta enviada por el formulario (nombre, email, teléfono, mensaje): [Política de privacidad](https://domissihermanos.com.ar/privacy.html).
+
+No sirve para: conocer precios ni disponibilidad de stock (no se publican), comprar online ni seguir un pedido (el sitio no tiene carrito ni seguimiento).
+
+### Cómo llamar al servidor MCP de Domissi Hermanos
+
+- Endpoint: `https://domissihermanos.com.ar/mcp` (Streamable HTTP, POST con JSON-RPC, solo lectura, sin autenticación). Manifiesto: `https://domissihermanos.com.ar/.well-known/mcp`.
+- Herramientas: `get_company_info`, `get_contact_info`, `list_product_categories` y `search_products` (`query` de 1 a 100 caracteres, `category` opcional, `limit` de 1 a 50).
+- Ejemplo:
+
+```
+curl -X POST https://domissihermanos.com.ar/mcp -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"search_products","arguments":{"query":"planchuela 1 1/4","limit":5}}}'
+```
+
+## Páginas principales de Domissi Hermanos
 
 - [Inicio](https://domissihermanos.com.ar/): presentación, propuesta de valor y accesos rápidos.
 - [Catálogo de productos](https://domissihermanos.com.ar/productos.html): 2680 productos con código, medidas, largo y peso.
 - [Buscador](https://domissihermanos.com.ar/buscar.html): búsqueda por texto, p. ej. `buscar.html?q=planchuela 1 1/4`.
+- [Quiénes somos](https://domissihermanos.com.ar/about.html): qué vende Domissi Hermanos, a quién atiende, cómo entrega y dónde está.
 - [Empresa](https://domissihermanos.com.ar/empresa.html): historia, flota propia y valores.
 - [Contacto](https://domissihermanos.com.ar/contacto.html): formulario de presupuesto, teléfono, email y dirección.
+- [Política de privacidad](https://domissihermanos.com.ar/privacy.html): tratamiento de los datos de consultas y servicios de terceros.
 
 ## Categorías del catálogo
 
@@ -38,8 +62,9 @@ Atiende a obra (constructoras y clientes finales), industria (PYMES metalúrgica
 
 - [Catálogo completo en texto](https://domissihermanos.com.ar/llms-full.txt): todas las categorías, subcategorías y productos con sus medidas.
 - [Sitemap](https://domissihermanos.com.ar/sitemap.xml)
+- [Manifiesto del servidor MCP](https://domissihermanos.com.ar/.well-known/mcp)
 
-## Datos de contacto
+## Datos de contacto de Domissi Hermanos
 
 - Teléfono: +54 3464 45-5600
 - WhatsApp: https://wa.me/5493464609089
@@ -49,7 +74,7 @@ Atiende a obra (constructoras y clientes finales), industria (PYMES metalúrgica
 
 ## Notas para agentes
 
-- Los precios no se publican: para cotizar, derivar al WhatsApp o al formulario de contacto.
+- Las páginas principales también se piden en Markdown con `Accept: text/markdown` (inicio, Quiénes somos y Política de privacidad).
 - La interfaz del catálogo se renderiza con JavaScript; para leer el catálogo sin ejecutar JS usar `llms-full.txt`.
 - Parámetros de URL del catálogo: `productos.html?c=<categoría>&s=<subcategoría>&g=<agrupador>&a=<ancho mm>&e=<espesor mm>&q=<texto>`.
 - Los filtros de ancho y espesor existen solo donde hay datos: Ángulos/planchuelas/perfiles T/U (ancho y espesor) y Caños (espesor).
