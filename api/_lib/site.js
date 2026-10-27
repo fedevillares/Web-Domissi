@@ -2,7 +2,9 @@
 // pages show: business facts from the JSON-LD in index.html, the catalog from the
 // generated js/*-data.js files (built by tools/build_catalog.py).
 import { readSiteFile } from "./files.js";
-import { parseHtml, find, textOf } from "./html.js";
+import { parseHtml, find, findAll, hasClass, textOf } from "./html.js";
+
+/** @typedef {import("./html.js").Element} Element */
 
 /** @type {Map<string, unknown>} */
 const memo = new Map();
@@ -27,7 +29,7 @@ function windowValue(file, name) {
 }
 
 /**
- * @typedef {{ id: string, label: string, count: number, desc?: string }} Subcategory
+ * @typedef {{ id: string, label: string, count: number, desc?: string, groups?: { id: string, label: string, count: number }[] }} Subcategory
  * @typedef {{ id: string, label: string, group: number, count: number, intro?: string, desc?: string, sub: Subcategory[] }} Category
  */
 export const catalog = () => once("catalog", () => ({
@@ -53,9 +55,8 @@ export const business = () => once("business", () => {
   return node;
 });
 
-/** @param {Element | null} el */
-const attr = (el, /** @type {string} */ name) => el?.attrs[name] ?? "";
-/** @typedef {import("./html.js").Element} Element */
+/** @param {Element | null} el @param {string} name */
+const attr = (el, name) => el?.attrs[name] ?? "";
 
 /** <title>, meta description and canonical URL of a page. @param {string} rel */
 export function pageMeta(rel) {
@@ -89,3 +90,53 @@ export function openingHours() {
 /** @param {Business["address"]} a */
 export const formatAddress = (a) =>
   `${a.streetAddress}, ${a.postalCode} ${a.addressLocality}, ${a.addressRegion}, ${a.addressCountry === "AR" ? "Argentina" : a.addressCountry}`;
+
+const linkOf = (/** @type {Element} */ a, /** @type {string} */ base) => ({
+  label: textOf(a).replace(/\s+/g, " ").trim() || (a.attrs["aria-label"] ?? ""),
+  url: new URL(a.attrs.href, base).href,
+});
+const textIn = (/** @type {Element} */ el, /** @type {string} */ tag) => {
+  const found = find(el, (n) => n.tag === tag);
+  return found ? textOf(found).replace(/\s+/g, " ").trim() : "";
+};
+
+/**
+ * Contact channels as published on contacto.html: each `.contact-channel` block with
+ * its title, texts and links. Blocks titled with <h3> are physical locations.
+ * @param {string} base URL that relative links resolve against
+ */
+export function contactChannels(base) {
+  return findAll(page("contacto.html"), (el) => hasClass(el, "contact-channel")).map((el) => {
+    const heading = find(el, (n) => n.tag === "h2" || n.tag === "h3");
+    return {
+      kind: heading?.tag === "h3" ? "location" : "channel",
+      title: heading ? textOf(heading).trim() : "",
+      details: findAll(el, (n) => n.tag === "p").map((p) => textOf(p).replace(/\s+/g, " ").trim()).filter(Boolean),
+      links: findAll(el, (n) => n.tag === "a" && Boolean(n.attrs.href)).map((a) => linkOf(a, base)),
+    };
+  });
+}
+
+/**
+ * What the home page offers: the hero slides and the three customer segments.
+ * @param {string} base URL that relative links resolve against
+ */
+export function homeOffer(base) {
+  const doc = page("index.html");
+  return {
+    highlights: findAll(doc, (el) => hasClass(el, "hero__slide")).map((slide) => ({
+      title: textIn(slide, "h1") || textIn(slide, "h2"),
+      text: textIn(slide, "p"),
+    })),
+    segments: findAll(doc, (el) => hasClass(el, "offer-panel")).map((panel) => {
+      const kicker = find(panel, (n) => hasClass(n, "offer-panel__kicker"));
+      const chips = find(panel, (n) => hasClass(n, "offer-chips"));
+      return {
+        name: kicker ? textOf(kicker).trim() : "",
+        title: textIn(panel, "h3"),
+        description: textIn(panel, "p"),
+        featured_categories: chips ? findAll(chips, (n) => n.tag === "a").map((a) => linkOf(a, base)) : [],
+      };
+    }),
+  };
+}

@@ -1,8 +1,11 @@
 {
   "functions": {
-    "api/agents.js": { "includeFiles": "{404.html,index.html,js/catalog-data.js}" }
+    "api/agents.js": { "includeFiles": "{404.html,index.html,contacto.html,js/catalog-data.js,js/products-data.js}" }
   },
   "rewrites": [
+    { "source": "/mcp", "destination": "/api/agents?route=mcp" },
+    { "source": "/mcp/server-card", "destination": "/api/agents?route=server-card" },
+    { "source": "/.well-known/mcp", "destination": "/api/agents?route=server-card" },
     {
       "source": "/:path*",
       "has": [{ "type": "header", "key": "accept", "value": ".*text/markdown.*" }],
