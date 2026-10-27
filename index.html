@@ -32,9 +32,9 @@
 
 <link rel="preload" href="assets/fonts/inter-v20-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/big-shoulders-display-v24-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" as="image" href="assets/hero/hero-1-m.webp" media="(max-width: 700px)" fetchpriority="high">
-<link rel="preload" as="image" href="assets/hero/hero-1.webp" media="(min-width: 701px)" fetchpriority="high">
-<link rel="stylesheet" href="css/styles.css?v=20261037">
+<link rel="preload" as="image" href="assets/hero/hero-1-m.avif" type="image/avif" media="(max-width: 700px)" fetchpriority="high">
+<link rel="preload" as="image" href="assets/hero/hero-1.avif" type="image/avif" media="(min-width: 701px)" fetchpriority="high">
+<link rel="stylesheet" href="css/styles.css?v=20261038">
 
 <script>
 window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-GKKN6BD9QZ');
@@ -122,7 +122,9 @@ addEventListener('load',function(){setTimeout(load,3500)});})();
   <div class="hero__track">
     <div class="hero__slide is-active" role="group" aria-roledescription="slide" aria-label="1 de 3">
       <picture class="hero__pic">
+        <source media="(max-width: 700px)" srcset="assets/hero/hero-1-m.avif" type="image/avif" width="800" height="1040">
         <source media="(max-width: 700px)" srcset="assets/hero/hero-1-m.webp" width="800" height="1040">
+        <source srcset="assets/hero/hero-1.avif" type="image/avif">
         <img src="assets/hero/hero-1.webp" alt="Caños de acero apilados en el depósito de Domissi" width="1920" height="1080" fetchpriority="high" decoding="async">
       </picture>
       <div class="hero__scrim"></div>
@@ -313,14 +315,14 @@ addEventListener('load',function(){setTimeout(load,3500)});})();
   </div>
 </footer>
 
-<script defer src="js/catalog-data.js?v=20261037"></script>
+<script defer src="js/catalog-data.js?v=20261038"></script>
 <script defer src="js/search-core.js"></script>
 <script defer src="js/nav-search.js"></script>
 <script defer src="js/search-overlay.js"></script>
 <script defer src="js/nav.js"></script>
 <script defer src="js/vendor/lenis.min.js"></script>
 <script defer src="js/smooth-scroll.js"></script>
-<script defer src="js/main.js?v=20261037"></script>
+<script defer src="js/main.js?v=20261038"></script>
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>
 </html>
