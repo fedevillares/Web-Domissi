@@ -155,7 +155,9 @@ export async function startDevServer({ port = 3000, root = ROOT } = {}) {
         method: req.method, headers, body: hasBody ? Buffer.concat(chunks) : undefined,
       });
       const out = await handle(request);
-      res.writeHead(out.status, out.statusText, Object.fromEntries(out.headers));
+      // Node fills in the standard reason phrase when none is given.
+      if (out.statusText) res.writeHead(out.status, out.statusText, Object.fromEntries(out.headers));
+      else res.writeHead(out.status, Object.fromEntries(out.headers));
       res.end(req.method === "HEAD" ? undefined : Buffer.from(await out.arrayBuffer()));
     } catch (err) {
       console.error(err);
